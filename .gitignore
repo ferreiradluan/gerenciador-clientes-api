@@ -71,5 +71,6 @@ Thumbs.db
 # Heroku
 .env
 
-# Arquivos sensíveis (nunca committar)
-*.md
+# Arquivos de configuração temporários
+*:Zone.Identifier
+HELP.md
