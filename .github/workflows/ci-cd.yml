@@ -89,11 +89,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy Backend to Heroku
-      uses: akhileshns/heroku-deploy@v3.13.15
+    - name: Setup Heroku CLI
+      uses: extractions/setup-heroku@v1
       with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-        heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        appdir: "backend"
-        buildpack: "heroku/java"
+        api-key: ${{ secrets.HEROKU_API_KEY }}
+    
+    - name: Add Heroku Git Remote
+      run: |
+        cd backend
+        heroku git:remote -a ${{ secrets.HEROKU_APP_NAME }}
+    
+    - name: Deploy to Heroku
+      run: |
+        cd backend
+        git subtree push --prefix=backend heroku main || git push --force heroku main
