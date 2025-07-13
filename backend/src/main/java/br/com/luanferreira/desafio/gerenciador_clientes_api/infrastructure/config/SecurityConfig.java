@@ -23,12 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    @Lazy
-    private JwtRequestFilter jwtRequestFilter;
+    @Bean
+    public JwtRequestFilter jwtRequestFilter(UserDetailsService userDetailsService, br.com.luanferreira.desafio.gerenciador_clientes_api.infrastructure.service.TokenService tokenService) {
+        return new JwtRequestFilter(userDetailsService, tokenService);
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
@@ -45,15 +46,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails user = User.builder()
                 .username("user")
-                .password(passwordEncoder().encode("password"))
+                .password(passwordEncoder.encode("password"))
                 .roles("USER")
                 .build();
         UserDetails admin = User.builder()
                 .username("admin")
-                .password(passwordEncoder().encode("password"))
+                .password(passwordEncoder.encode("password"))
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(user, admin);
