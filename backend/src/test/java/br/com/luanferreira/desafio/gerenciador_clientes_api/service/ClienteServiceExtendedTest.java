@@ -167,10 +167,24 @@ class ClienteServiceExtendedTest {
     }
 
     @Test
+    @DisplayName("Deve deletar cliente com sucesso quando cliente existe")
+    void deletarCliente_deveDeletarComSucesso_quandoClienteExiste() {
+        // Given
+        when(clienteRepository.existsById(1L)).thenReturn(true);
+
+        // When & Then
+        assertDoesNotThrow(() -> {
+            clienteService.deletarCliente(1L);
+        });
+
+        verify(clienteRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
     @DisplayName("Deve lançar exceção ao tentar deletar cliente inexistente")
     void deletarCliente_deveLancarExcecao_quandoClienteNaoExiste() throws Exception {
         // Given
-        when(clienteRepository.findById(999L)).thenReturn(Optional.empty());
+        when(clienteRepository.existsById(999L)).thenReturn(false);
 
         // When & Then
         var exception = assertThrows(ClienteNaoEncontradoException.class, () -> {
@@ -178,7 +192,7 @@ class ClienteServiceExtendedTest {
         });
 
         assertEquals("Cliente com ID 999 não encontrado.", exception.getMessage());
-        verify(clienteRepository, never()).delete(any(Cliente.class));
+        verify(clienteRepository, never()).deleteById(any(Long.class));
     }
 
     // Métodos auxiliares para criação de objetos de teste
