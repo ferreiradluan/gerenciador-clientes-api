@@ -21,7 +21,9 @@ services:
 
   # Aplicação Spring Boot
   api:
-    image: gerenciador-clientes-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: gerenciador_clientes_api
     depends_on:
       postgres:
