@@ -1,121 +1,38 @@
-# Gerenciador de Clientes - Frontend
+# Frontend - Gerenciador de Clientes
 
-*Esta pasta está reservada para o projeto Angular que será criado posteriormente.*
+Interface moderna para o sistema de gerenciamento de clientes.
 
-## Tecnologias Planejadas
+## 📋 Planejamento
 
-- **Angular** (versão mais recente)
-- **TypeScript**
-- **Angular Material** ou **Bootstrap** para UI
+### Stack Tecnológico
+- **Angular** (versão LTS)
+- **TypeScript** + **Angular Material**
 - **RxJS** para programação reativa
-- **Angular HTTP Client** para comunicação com a API
+- **Angular HTTP Client** para comunicação com API
 
-## Estrutura Planejada
+### Funcionalidades Previstas
+- ✅ Interface responsiva e moderna
+- ✅ CRUD completo de clientes
+- ✅ Autenticação JWT
+- ✅ Validação de formulários
+- ✅ Paginação e filtros
+- ✅ Tratamento de erros
 
-```
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── components/
-│   │   │   ├── cliente-list/
-│   │   │   ├── cliente-form/
-│   │   │   └── cliente-detail/
-│   │   ├── services/
-│   │   │   └── cliente.service.ts
-│   │   ├── models/
-│   │   │   └── cliente.model.ts
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   └── shared/
-│   ├── assets/
-│   ├── environments/
-│   └── styles/
-├── package.json
-├── angular.json
-└── tsconfig.json
-```
-
-## Como Criar o Projeto Angular
+## 🚀 Setup Futuro
 
 ```bash
-# Instalar Angular CLI globalmente (se não estiver instalado)
-npm install -g @angular/cli
-
-# Criar projeto Angular nesta pasta
+# Criar projeto Angular
 ng new gerenciador-clientes-frontend --routing --style=scss
 
-# Ou criar diretamente na pasta atual
-ng new . --routing --style=scss --skip-git
-```
-
-## Funcionalidades Planejadas
-
-- [ ] Listagem de clientes
-- [ ] Cadastro de novos clientes
-- [ ] Edição de clientes existentes
-- [ ] Exclusão de clientes
-- [ ] Busca e filtros
-- [ ] Paginação
-- [ ] Validação de formulários
-- [ ] Tratamento de erros
-- [ ] Loading states
-- [ ] Design responsivo
-
-## Integração com Backend
-
-O frontend consumirá a API REST do backend Spring Boot:
-
-- **Base URL**: `http://localhost:8080/api`
-- **Comunicação**: HTTP Client com interceptors
-- **Autenticação**: JWT tokens (quando implementado)
-- **Tratamento de erros**: Interceptors para erros HTTP
-
-## Desenvolvimento
-
-### Comandos Úteis (após criar o projeto)
-
-```bash
-# Instalar dependências
-npm install
-
-# Executar em modo de desenvolvimento
-ng serve
-
-# Build para produção
-ng build --prod
-
-# Executar testes
-ng test
-
-# Executar e2e tests
-ng e2e
-```
-
-### Bibliotecas Recomendadas
-
-```bash
-# Angular Material
+# Adicionar Angular Material
 ng add @angular/material
 
-# Bootstrap
-npm install bootstrap
-
-# Reactive Forms
-# (já incluído no Angular)
-
-# HTTP Interceptors
-# (já incluído no Angular)
+# Executar desenvolvimento
+ng serve
 ```
 
-## Próximos Passos
+## 🔗 Integração
 
-1. Criar projeto Angular
-2. Configurar estrutura de pastas
-3. Implementar serviço para comunicação com API
-4. Criar modelos TypeScript
-5. Implementar componentes de interface
-6. Configurar roteamento
-7. Implementar formulários reativos
-8. Adicionar validações
-9. Implementar tratamento de erros
-10. Adicionar testes
+**API Base:** `http://localhost:8080/api`
+
+O frontend consumirá todos os endpoints da API REST com autenticação JWT.

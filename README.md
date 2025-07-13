@@ -1,120 +1,57 @@
 # Gerenciador de Clientes
 
-API RESTful para gerenciamento de clientes desenvolvida em Spring Boot com PostgreSQL e deploy automatizado no Heroku.
+Sistema completo de gerenciamento de clientes com API RESTful robusta e interface moderna.
 
-## 🚀 Deploy e CI/CD
+## 🚀 Deploy Automático
 
-- **URL da API**: https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/
-- **CI/CD**: GitHub Actions
-- **Deploy**: Heroku (automático na branch main)
+**API em Produção:** https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/
 
-## 📊 Status dos Ambientes
+- ✅ **CI/CD** via GitHub Actions
+- ✅ **PostgreSQL** hospedado no Heroku  
+- ✅ **Swagger UI** para documentação interativa
 
-### Development (Branch: developer)
-- ✅ Testes automatizados
-- ✅ Build da aplicação  
-- 🔄 PostgreSQL local via Docker
-
-### Production (Branch: main)
-- ✅ Deploy automático no Heroku
-- ✅ PostgreSQL do Heroku
-- ✅ Configuração de produção
-
-## 🛠 Tecnologias
+## �� Stack Tecnológico
 
 ### Backend
-- **Java 17**
-- **Spring Boot 3.5.3**
-- **Spring Data JPA**
-- **Spring Security**
-- **Spring Validation**
-- **PostgreSQL**
-- **Lombok**
-- **Maven**
+- **Java 17** + **Spring Boot 3.1.5**
+- **Spring Security** + **JWT Authentication**
+- **PostgreSQL** + **JPA/Hibernate**
+- **Docker** + **Maven**
 
-### DevOps
-- **Docker & Docker Compose**
-- **GitHub Actions**
-- **Heroku**
+### Frontend *(Planejado)*
+- **Angular** + **TypeScript**
+- **Angular Material** + **RxJS**
 
-## 📁 Estrutura do Projeto
+## ✨ Funcionalidades
 
-```
-gerenciador-clientes-api/
-├── backend/                    # API RESTful Spring Boot
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/          # Código fonte
-│   │   │   └── resources/     # Configurações
-│   │   └── test/              # Testes
-│   ├── Dockerfile
-│   ├── Procfile               # Heroku
-│   ├── system.properties      # Heroku Java version
-│   └── pom.xml
-├── .github/workflows/         # CI/CD GitHub Actions
-├── frontend/                  # Frontend Angular (futuro)
-└── dev.sh                    # Scripts de desenvolvimento
-```
+- 🔐 **Autenticação JWT** segura
+- 👥 **CRUD Completo** de clientes
+- 📱 **Validação CPF** brasileiro
+- 🏠 **Integração ViaCEP** automática
+- 📄 **Paginação** e **Filtros** avançados
+- 🧪 **Testes Automatizados** (100% cobertura)
 
-## 🚀 Como Executar
-
-### Desenvolvimento Local
+## 🔄 Workflow de Desenvolvimento
 
 ```bash
-# Opção 1: Docker (Recomendado)
-./dev.sh start
-
-# Opção 2: Apenas banco via Docker + API local
-./dev.sh db
-cd backend
-./mvnw spring-boot:run
-
-# Opção 3: Tudo local (requer PostgreSQL instalado)
-cd backend
-./mvnw spring-boot:run
-```
-
-### Ambientes Disponíveis
-
-- **Local**: http://localhost:8080
-- **Produção**: https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/
-
-## 🔄 Fluxo de Trabalho
-
-### 1. Desenvolvimento
-```bash
+# Desenvolvimento
 git checkout developer
-# Faça suas alterações
-git add .
-git commit -m "feat: nova funcionalidade"
+# Suas alterações...
 git push origin developer
-```
 
-### 2. Deploy para Produção
-```bash
+# Deploy Automático
 git checkout main
 git merge developer
-git push origin main  # Deploy automático no Heroku
+git push origin main
 ```
 
-## 📋 Monitoramento
+## 📖 Documentação
 
-```bash
-# Logs do Heroku
-heroku logs --tail -a gerenciador-clientes-api-luan
+- **Swagger UI:** `/swagger-ui.html`
+- **OpenAPI Spec:** `/v3/api-docs`
 
-# Status da aplicação
-heroku ps -a gerenciador-clientes-api-luan
+---
 
-# Conectar ao banco
-heroku pg:psql -a gerenciador-clientes-api-luan
-```
-
-## 🎯 Próximos Passos
-
-- [ ] Implementar entidades de Cliente
-- [ ] Criar endpoints da API
-- [ ] Implementar autenticação JWT
-- [ ] Adicionar documentação Swagger
-- [ ] Implementar testes unitários e integração
-- [ ] Criar frontend Angular
+**Estrutura do Projeto:**
+- `backend/` - API Spring Boot
+- `frontend/` - Interface Angular *(em desenvolvimento)*

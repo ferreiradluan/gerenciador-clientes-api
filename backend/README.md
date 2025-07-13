@@ -1,77 +1,57 @@
-# API de Gerenciamento de Clientes
+# API Backend - Gerenciador de Clientes
 
-## Exemplos de Uso da API
+API RESTful robusta para gerenciamento de clientes com autenticação JWT e integração com serviços externos.
 
-### Criar um novo cliente
+## � Tecnologias
 
-`POST /api/clientes`
+- **Java 17** + **Spring Boot 3.1.5**
+- **Spring Security** + **JWT Authentication**
+- **PostgreSQL** com **JPA/Hibernate**
+- **Maven** + **Docker**
+- **OpenAPI/Swagger** para documentação
 
-**Request Body:**
+## 🚀 Quick Start
 
-```json
-{
-  "nome": "Fulano de Tal",
-  "cpf": "12345678901",
-  "telefones": [
-    {
-      "ddd": "11",
-      "numero": "999999999",
-      "tipo": "Celular"
-    }
-  ],
-  "emails": [
-    {
-      "enderecoEmail": "fulano@example.com"
-    }
-  ],
-  "enderecos": [
-    {
-      "cep": "01001000",
-      "complemento": "Apto 101"
-    }
-  ]
-}
+### Pré-requisitos
+- Java 17+
+- PostgreSQL (local ou Docker)
+
+### Executar
+```bash
+# Banco via Docker
+docker-compose up -d postgres
+
+# Aplicação
+./mvnw spring-boot:run
 ```
 
-### Listar clientes com paginação e filtro
+### Documentação
+- **Swagger:** http://localhost:8080/swagger-ui.html
+- **API Docs:** http://localhost:8080/v3/api-docs
 
-`GET /api/clientes?page=0&size=10&nome=Fulano`
+## 📋 Principais Endpoints
 
-### Buscar cliente por ID
-
-`GET /api/clientes/1`
-
-### Atualizar cliente
-
-`PUT /api/clientes/1`
-
-**Request Body:**
-
-```json
-{
-  "nome": "Fulano de Tal Atualizado",
-  "cpf": "12345678901",
-  "telefones": [
-    {
-      "ddd": "11",
-      "numero": "988888888",
-      "tipo": "Celular"
-    }
-  ],
-  "emails": [
-    {
-      "enderecoEmail": "fulano.atualizado@example.com"
-    }
-  ],
-  "enderecos": [
-    {
-      "cep": "01001000",
-      "complemento": "Apto 102"
-    }
-  ]
-}
+```http
+POST   /api/auth/login           # Autenticação
+GET    /api/clientes             # Listar clientes
+POST   /api/clientes             # Criar cliente
+GET    /api/clientes/{id}        # Buscar por ID
+PUT    /api/clientes/{id}        # Atualizar cliente
+DELETE /api/clientes/{id}        # Remover cliente
 ```
 
-### Deletar cliente
+## ✅ Funcionalidades
 
-`DELETE /api/clientes/1`
+- **CRUD Completo** de clientes
+- **Autenticação JWT** com Spring Security
+- **Validação de CPF** brasileiro
+- **Integração ViaCEP** para endereços
+- **Paginação e Filtros** avançados
+- **Testes Automatizados** (100% cobertura)
+
+## 🧪 Testes
+
+```bash
+./mvnw test                      # Executar todos os testes
+./mvnw test-compile test         # Com relatórios
+```
