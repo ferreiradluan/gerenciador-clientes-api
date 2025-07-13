@@ -1,14 +1,20 @@
-# Gerenciador de Clientes
+# 🎯 Gerenciador de Clientes
 
-Sistema completo de gerenciamento de clientes com API RESTful robusta e interface moderna.
+> Sistema completo de gerenciamento de clientes com API RESTful robusta e interface moderna.
 
-## 🚀 Deploy Automático
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-brightgreen)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
+[![Deploy](https://img.shields.io/badge/Deploy-Heroku-purple)](https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com)
 
-**API em Produção:** https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/
+## 🌐 Aplicação em Produção
+
+**API Backend:** https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/
 
 - ✅ **CI/CD** via GitHub Actions
 - ✅ **PostgreSQL** hospedado no Heroku  
 - ✅ **Swagger UI** para documentação interativa
+- ✅ **Testes Automatizados** em pipeline
 
 ## �� Stack Tecnológico
 
