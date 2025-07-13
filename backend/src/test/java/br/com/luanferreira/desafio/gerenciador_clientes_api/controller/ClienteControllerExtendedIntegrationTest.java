@@ -102,7 +102,7 @@ class ClienteControllerExtendedIntegrationTest {
         // When & Then
         mockMvc.perform(get("/api/clientes/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Cliente com ID 999 não encontrado."));
+                .andExpect(jsonPath("$.erro").value("Cliente com ID 999 não encontrado."));
     }
 
     @Test
