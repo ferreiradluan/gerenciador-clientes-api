@@ -3,6 +3,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.service;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper.ClienteMapper;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.service.ClienteApplicationService;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
@@ -49,6 +50,9 @@ class ClienteServiceExtendedTest {
     @Mock
     private ViaCepClient viaCepClient;
 
+    @Mock
+    private ClienteMapper clienteMapper;
+
     @InjectMocks
     private ClienteApplicationService clienteService;
 
@@ -75,11 +79,17 @@ class ClienteServiceExtendedTest {
         // Given
         var clienteRequest = criarClienteRequestValido();
         var clienteSalvo = criarClienteComId();
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setId(1L);
+        clienteDTO.setNome("João Silva");
+        clienteDTO.setCpf("11144477735");
         var enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
 
         when(clienteRepository.findByCpf(anyString())).thenReturn(Optional.empty());
+        when(clienteMapper.toEntity(clienteRequest)).thenReturn(clienteSalvo);
         when(viaCepClient.consultarCep(anyString())).thenReturn(enderecoViaCep);
         when(clienteRepository.save(any(Cliente.class))).thenReturn(clienteSalvo);
+        when(clienteMapper.toDTO(clienteSalvo)).thenReturn(clienteDTO);
 
         // When
         var resultado = clienteService.criarCliente(clienteRequest);
@@ -98,7 +108,12 @@ class ClienteServiceExtendedTest {
     void buscarPorId_deveRetornarCliente_quandoIdExiste() {
         // Given
         var cliente = criarClienteComId();
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setId(1L);
+        clienteDTO.setNome("João Silva");
+        
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(clienteMapper.toDTO(cliente)).thenReturn(clienteDTO);
 
         // When
         var resultado = clienteService.buscarPorId(1L);
@@ -128,10 +143,14 @@ class ClienteServiceExtendedTest {
     void listarTodos_deveRetornarPaginaClientes() {
         // Given
         var cliente = criarClienteComId();
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setNome("João Silva");
         var pageable = PageRequest.of(0, 10);
         var clientesPage = new PageImpl<>(List.of(cliente), pageable, 1);
+        var clientesDTOPage = new PageImpl<>(List.of(clienteDTO), pageable, 1);
 
         when(clienteRepository.findAll((Specification<Cliente>) any(), eq(pageable))).thenReturn(clientesPage);
+        when(clienteMapper.toDTO(clientesPage)).thenReturn(clientesDTOPage);
 
         // When
         var resultado = clienteService.listarTodos(null, null, pageable);
@@ -150,6 +169,8 @@ class ClienteServiceExtendedTest {
         var clienteExistente = criarClienteComId();
         var clienteRequest = criarClienteRequestValido();
         clienteRequest.setNome("João Silva Atualizado");
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setId(1L);
         
         var enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
 
@@ -157,6 +178,7 @@ class ClienteServiceExtendedTest {
         when(clienteRepository.findByCpf(anyString())).thenReturn(Optional.of(clienteExistente));
         when(viaCepClient.consultarCep(anyString())).thenReturn(enderecoViaCep);
         when(clienteRepository.save(any(Cliente.class))).thenReturn(clienteExistente);
+        when(clienteMapper.toDTO(clienteExistente)).thenReturn(clienteDTO);
 
         // When
         var resultado = clienteService.atualizarCliente(1L, clienteRequest);
@@ -164,6 +186,7 @@ class ClienteServiceExtendedTest {
         // Then
         assertNotNull(resultado);
         verify(clienteRepository, times(1)).save(any(Cliente.class));
+        verify(clienteMapper, times(1)).updateClienteFromDto(clienteRequest, clienteExistente);
     }
 
     @Test

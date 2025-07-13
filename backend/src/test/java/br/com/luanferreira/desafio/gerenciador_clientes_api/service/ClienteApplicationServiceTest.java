@@ -3,6 +3,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.service;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper.ClienteMapper;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.service.ClienteApplicationService;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
@@ -39,6 +40,9 @@ class ClienteApplicationServiceTest {
     @Mock
     private ViaCepClient viaCepClient;
 
+    @Mock
+    private ClienteMapper clienteMapper;
+
     @InjectMocks
     private ClienteApplicationService clienteApplicationService;
 
@@ -47,14 +51,21 @@ class ClienteApplicationServiceTest {
         // CPF válido para teste
         ClienteRequestBody requestBody = new ClienteRequestBody("Nome", "11144477735", Collections.singleton(new Telefone("11", "999999999", "Celular")),
                 Collections.singleton(new Email("test@test.com")), Collections.singletonList(new EnderecoDTO("01001000", null, null, null, null, "Apto 1")));
+        Cliente cliente = new Cliente();
+        ClienteDTO clienteDTO = new ClienteDTO();
+        
         when(clienteRepository.findByCpf(any())).thenReturn(Optional.empty());
+        when(clienteMapper.toEntity(requestBody)).thenReturn(cliente);
         when(viaCepClient.consultarCep(any())).thenReturn(new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null));
-        when(clienteRepository.save(any())).thenReturn(new Cliente());
+        when(clienteRepository.save(any())).thenReturn(cliente);
+        when(clienteMapper.toDTO(cliente)).thenReturn(clienteDTO);
 
         ClienteDTO result = clienteApplicationService.criarCliente(requestBody);
 
         assertNotNull(result);
         verify(clienteRepository, times(1)).save(any());
+        verify(clienteMapper, times(1)).toEntity(requestBody);
+        verify(clienteMapper, times(1)).toDTO(cliente);
     }
 
     @Test
@@ -67,21 +78,55 @@ class ClienteApplicationServiceTest {
 
     @Test
     void listarTodos_DeveRetornarPaginaDeClientes() {
-        when(clienteRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(Collections.singletonList(new Cliente())));
+        // Given
+        var cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setNome("João Silva");
+        cliente.setCpf("11144477735");
+        
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setId(1L);
+        clienteDTO.setNome("João Silva");
+        clienteDTO.setCpf("11144477735");
+        
+        var clientesPage = new PageImpl<>(Collections.singletonList(cliente));
+        var clientesDTOPage = new PageImpl<>(Collections.singletonList(clienteDTO));
 
+        when(clienteRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
+                .thenReturn(clientesPage);
+        when(clienteMapper.toDTO(clientesPage)).thenReturn(clientesDTOPage);
+
+        // When
         Page<ClienteDTO> result = clienteApplicationService.listarTodos(null, null, Pageable.unpaged());
 
+        // Then
+        assertNotNull(result);
         assertEquals(1, result.getTotalElements());
     }
 
     @Test
     void buscarPorId_ComIdExistente_DeveRetornarCliente() {
-        when(clienteRepository.findById(anyLong())).thenReturn(Optional.of(new Cliente()));
+        // Given
+        var cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setNome("João Silva");
+        cliente.setCpf("11144477735");
+        
+        var clienteDTO = new ClienteDTO();
+        clienteDTO.setId(1L);
+        clienteDTO.setNome("João Silva");
+        clienteDTO.setCpf("11144477735");
 
+        when(clienteRepository.findById(anyLong())).thenReturn(Optional.of(cliente));
+        when(clienteMapper.toDTO(cliente)).thenReturn(clienteDTO);
+
+        // When
         ClienteDTO result = clienteApplicationService.buscarPorId(1L);
 
+        // Then
         assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("João Silva", result.getNome());
     }
 
     @Test

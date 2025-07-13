@@ -3,6 +3,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.application.service
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper.ClienteMapper;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Cliente;
@@ -26,6 +27,7 @@ public class ClienteApplicationService {
 
     private final ClienteRepository clienteRepository;
     private final ViaCepClient viaCepClient;
+    private final ClienteMapper clienteMapper;
 
     @Transactional
     public ClienteDTO criarCliente(ClienteRequestBody clienteRequestBody) {
@@ -33,11 +35,7 @@ public class ClienteApplicationService {
             throw new CpfJaCadastradoException(clienteRequestBody.getCpf());
         });
 
-        Cliente cliente = new Cliente();
-        cliente.setNome(clienteRequestBody.getNome());
-        cliente.setCpf(clienteRequestBody.getCpf());
-        cliente.setTelefones(clienteRequestBody.getTelefones());
-        cliente.setEmails(clienteRequestBody.getEmails());
+        Cliente cliente = clienteMapper.toEntity(clienteRequestBody);
 
         List<Endereco> enderecos = clienteRequestBody.getEnderecos().stream()
                 .map(this::buscarEnderecoPorCep)
@@ -47,21 +45,21 @@ public class ClienteApplicationService {
         cliente.setEnderecos(enderecos);
 
         Cliente clienteSalvo = clienteRepository.save(cliente);
-        return toDTO(clienteSalvo);
+        return clienteMapper.toDTO(clienteSalvo);
     }
 
     @Transactional(readOnly = true)
     public Page<ClienteDTO> listarTodos(String nome, String cpf, Pageable pageable) {
         Specification<Cliente> spec = Specification.where(ClienteSpecification.comNome(nome))
                 .and(ClienteSpecification.comCpf(cpf));
-        return clienteRepository.findAll(spec, pageable).map(this::toDTO);
+        return clienteMapper.toDTO(clienteRepository.findAll(spec, pageable));
     }
 
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
-        return toDTO(cliente);
+        return clienteMapper.toDTO(cliente);
     }
 
     @Transactional
@@ -75,10 +73,7 @@ public class ClienteApplicationService {
             }
         });
 
-        cliente.setNome(clienteRequestBody.getNome());
-        cliente.setCpf(clienteRequestBody.getCpf());
-        cliente.setTelefones(clienteRequestBody.getTelefones());
-        cliente.setEmails(clienteRequestBody.getEmails());
+        clienteMapper.updateClienteFromDto(clienteRequestBody, cliente);
 
         List<Endereco> enderecos = clienteRequestBody.getEnderecos().stream()
                 .map(this::buscarEnderecoPorCep)
@@ -89,7 +84,7 @@ public class ClienteApplicationService {
         cliente.getEnderecos().addAll(enderecos);
 
         Cliente clienteAtualizado = clienteRepository.save(cliente);
-        return toDTO(clienteAtualizado);
+        return clienteMapper.toDTO(clienteAtualizado);
     }
 
     @Transactional
@@ -110,13 +105,5 @@ public class ClienteApplicationService {
         endereco.setUf(enderecoViaCep.getUf());
         endereco.setComplemento(enderecoDTO.getComplemento());
         return endereco;
-    }
-
-    private ClienteDTO toDTO(Cliente cliente) {
-        List<EnderecoDTO> enderecoDTOs = cliente.getEnderecos().stream()
-                .map(e -> new EnderecoDTO(e.getCep(), e.getLogradouro(), e.getBairro(), e.getCidade(), e.getUf(), e.getComplemento()))
-                .collect(Collectors.toList());
-
-        return new ClienteDTO(cliente.getId(), cliente.getNome(), cliente.getCpf(), cliente.getTelefones(), cliente.getEmails(), enderecoDTOs);
     }
 }
