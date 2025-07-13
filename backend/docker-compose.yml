@@ -21,16 +21,13 @@ services:
 
   # Aplicação Spring Boot
   api:
-    build: .
+    image: gerenciador-clientes-api:latest
     container_name: gerenciador_clientes_api
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/gerenciador_clientes_db
     ports:
       - "8080:8080"
     networks:
