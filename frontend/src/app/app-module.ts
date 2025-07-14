@@ -5,6 +5,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { AuthModule } from './features/auth/auth.module';
+import { ClientsModule } from './features/clients/clients.module';
 
 @NgModule({
   declarations: [
@@ -13,7 +15,9 @@ import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    AuthModule,
+    ClientsModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

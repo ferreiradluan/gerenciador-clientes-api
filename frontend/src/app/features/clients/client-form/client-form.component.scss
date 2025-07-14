@@ -1,0 +1,13 @@
+.client-form-container {
+  margin: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+}
+
+mat-form-field {
+  width: 100%;
+}

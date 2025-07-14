@@ -1,0 +1,19 @@
+<div class="client-form-container">
+  <h2>{{ isEditMode ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="nome">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>CPF</mat-label>
+      <input matInput formControlName="cpf">
+    </mat-form-field>
+
+    <!-- Adicionar campos para telefones, emails e endereços -->
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!clientForm.valid">Salvar</button>
+  </form>
+</div>
