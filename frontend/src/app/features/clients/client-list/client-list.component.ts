@@ -17,6 +17,7 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'nome', 'cpf', 'emails', 'acoes'];
   dataSource = new MatTableDataSource<Cliente>();
   totalElements = 0;
+  isLoading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -49,6 +50,7 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   }
 
   loadClients(): void {
+    this.isLoading = true;
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 10;
     const sortField = this.sort?.active || 'nome';
@@ -60,9 +62,11 @@ export class ClientListComponent implements OnInit, AfterViewInit {
         this.dataSource.data = data.content;
         this.totalElements = data.totalElements;
         this.paginator.length = data.totalElements;
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Erro ao carregar clientes:', err);
+        this.isLoading = false;
       }
     });
   }

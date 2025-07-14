@@ -1,7 +1,12 @@
 <div class="client-list-container">
   <button mat-raised-button color="primary" (click)="navigateToNewClient()">Novo Cliente</button>
 
-  <table mat-table [dataSource]="dataSource">
+  <div *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center; padding: 50px;">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div [hidden]="isLoading">
+    <table mat-table [dataSource]="dataSource">
 
     <!-- Colunas da tabela -->
     <ng-container matColumnDef="id">
@@ -36,4 +41,5 @@
   </table>
 
   <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </div>
 </div>
