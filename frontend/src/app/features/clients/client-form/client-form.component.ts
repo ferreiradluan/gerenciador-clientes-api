@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClientService } from '../client.service';
 import { Cliente } from '../../../shared/models/cliente.model';
 
@@ -19,7 +20,8 @@ export class ClientFormComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -132,7 +134,7 @@ export class ClientFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.clientForm.invalid) {
-      console.log('Formulário inválido');
+      this.snackBar.open('Por favor, preencha todos os campos obrigatórios.', 'Fechar', { duration: 3000 });
       return;
     }
 
@@ -141,20 +143,22 @@ export class ClientFormComponent implements OnInit {
     if (this.isEditMode && this.clientId) {
       this.clientService.updateCliente(this.clientId, clientData).subscribe({
         next: () => {
-          console.log('Cliente atualizado com sucesso');
+          this.snackBar.open('Cliente atualizado com sucesso!', 'Fechar', { duration: 3000 });
           this.router.navigate(['/clientes']);
         },
         error: (err) => {
+          this.snackBar.open('Erro ao atualizar cliente.', 'Fechar', { duration: 3000 });
           console.error('Erro ao atualizar cliente:', err);
         }
       });
     } else {
       this.clientService.createCliente(clientData).subscribe({
         next: () => {
-          console.log('Cliente criado com sucesso');
+          this.snackBar.open('Cliente criado com sucesso!', 'Fechar', { duration: 3000 });
           this.router.navigate(['/clientes']);
         },
         error: (err) => {
+          this.snackBar.open('Erro ao criar cliente.', 'Fechar', { duration: 3000 });
           console.error('Erro ao criar cliente:', err);
         }
       });

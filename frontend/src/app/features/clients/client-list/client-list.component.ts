@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ClientService } from '../client.service';
 import { Cliente } from '../../../shared/models/cliente.model';
@@ -22,7 +23,11 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private clientService: ClientService, private router: Router) { }
+  constructor(
+    private clientService: ClientService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     // Inicialização básica - carregamento inicial será feito no ngAfterViewInit
@@ -66,6 +71,7 @@ export class ClientListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Erro ao carregar clientes:', err);
+        this.snackBar.open('Erro ao carregar clientes.', 'Fechar', { duration: 3000 });
         this.isLoading = false;
       }
     });
@@ -83,10 +89,11 @@ export class ClientListComponent implements OnInit, AfterViewInit {
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
       this.clientService.deleteCliente(id).subscribe({
         next: () => {
-          console.log('Cliente excluído com sucesso');
+          this.snackBar.open('Cliente deletado com sucesso!', 'Fechar', { duration: 3000 });
           this.loadClients();
         },
         error: (err) => {
+          this.snackBar.open('Erro ao deletar cliente.', 'Fechar', { duration: 3000 });
           console.error('Erro ao excluir cliente:', err);
         }
       });
