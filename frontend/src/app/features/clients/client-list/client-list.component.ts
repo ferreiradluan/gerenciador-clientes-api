@@ -85,7 +85,7 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   }
 
   deleteClient(id: number): void {
-    if (confirm('Tem certeza que deseja excluir este cliente?')) {
+    if (confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) {
       this.clientService.deleteCliente(id).subscribe({
         next: () => {
           this.snackBar.open('Cliente deletado com sucesso!', 'Fechar', { duration: 3000 });
