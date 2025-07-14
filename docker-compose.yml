@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Serviço do Banco de Dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: gerenciador_clientes_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gerenciador_clientes_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Sua lógica de healthcheck, mantida e essencial!
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gerenciador_clientes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Serviço do Backend Spring Boot
+  backend:
+    container_name: gerenciador_clientes_backend
+    build:
+      context: ./backend # Constrói a partir da pasta backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy # MELHORIA: Espera o healthcheck passar
+    environment:
+      # Aponta para o nome do serviço do container do banco
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/gerenciador_clientes_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+
+  # Serviço do Frontend Angular
+  frontend:
+    container_name: gerenciador_clientes_frontend
+    build:
+      context: ./frontend # Constrói a partir da pasta frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+
+volumes:
+  postgres_data:
