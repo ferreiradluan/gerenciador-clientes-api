@@ -5,6 +5,8 @@ import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Telefon
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,8 @@ import java.util.Set;
 public class ClienteRequestBody {
 
     @NotBlank(message = "O nome não pode ser nulo ou vazio")
+    @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ0-9\\s]+$", message = "O nome deve conter apenas letras, números e espaços")
     private String nome;
 
     @NotBlank(message = "O CPF não pode ser nulo ou vazio")

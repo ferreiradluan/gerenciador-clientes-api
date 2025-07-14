@@ -8,6 +8,18 @@
       <mat-form-field appearance="fill">
         <mat-label>Nome</mat-label>
         <input matInput formControlName="nome" required>
+        <mat-error *ngIf="nome?.hasError('required') && nome?.touched">
+          Nome é obrigatório
+        </mat-error>
+        <mat-error *ngIf="nome?.hasError('minlength') && nome?.touched">
+          Nome deve ter pelo menos 3 caracteres
+        </mat-error>
+        <mat-error *ngIf="nome?.hasError('maxlength') && nome?.touched">
+          Nome deve ter no máximo 100 caracteres
+        </mat-error>
+        <mat-error *ngIf="nome?.hasError('pattern') && nome?.touched">
+          Nome deve conter apenas letras, números e espaços
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="fill">

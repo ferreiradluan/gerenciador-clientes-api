@@ -26,7 +26,12 @@ export class ClientFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.clientForm = this.fb.group({
-      nome: ['', Validators.required],
+      nome: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100),
+        Validators.pattern(/^[a-zA-ZÀ-ÿ0-9\s]+$/)
+      ]],
       cpf: ['', Validators.required],
       telefones: this.fb.array([]),
       emails: this.fb.array([]),
@@ -92,6 +97,11 @@ export class ClientFormComponent implements OnInit {
     return this.clientForm.get('enderecos') as FormArray;
   }
 
+  // Getter para facilitar validação do nome no template
+  get nome() {
+    return this.clientForm.get('nome');
+  }
+
   // Métodos para gerenciar telefones
   addTelefone(telefone?: any): void {
     const telefoneGroup = this.fb.group({
@@ -137,7 +147,22 @@ export class ClientFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.clientForm.invalid) {
-      this.snackBar.open('Por favor, preencha todos os campos obrigatórios.', 'Fechar', { duration: 3000 });
+      // Marcar todos os campos como touched para mostrar erros
+      this.clientForm.markAllAsTouched();
+      
+      // Verificar erros específicos do nome
+      const nomeControl = this.clientForm.get('nome');
+      if (nomeControl?.hasError('required')) {
+        this.snackBar.open('Nome é obrigatório.', 'Fechar', { duration: 3000 });
+      } else if (nomeControl?.hasError('minlength')) {
+        this.snackBar.open('Nome deve ter pelo menos 3 caracteres.', 'Fechar', { duration: 3000 });
+      } else if (nomeControl?.hasError('maxlength')) {
+        this.snackBar.open('Nome deve ter no máximo 100 caracteres.', 'Fechar', { duration: 3000 });
+      } else if (nomeControl?.hasError('pattern')) {
+        this.snackBar.open('Nome deve conter apenas letras, números e espaços.', 'Fechar', { duration: 3000 });
+      } else {
+        this.snackBar.open('Por favor, preencha todos os campos obrigatórios.', 'Fechar', { duration: 3000 });
+      }
       return;
     }
 
