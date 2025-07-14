@@ -24,7 +24,16 @@
 
       <mat-form-field appearance="fill">
         <mat-label>CPF</mat-label>
-        <input matInput formControlName="cpf" required>
+        <input matInput formControlName="cpf" required 
+               placeholder="000.000.000-00"
+               (input)="onCpfChange($event)"
+               maxlength="14">
+        <mat-error *ngIf="cpf?.hasError('required') && cpf?.touched">
+          CPF é obrigatório
+        </mat-error>
+        <mat-error *ngIf="cpf?.hasError('cpfInvalido') && cpf?.touched">
+          CPF inválido
+        </mat-error>
       </mat-form-field>
     </div>
 

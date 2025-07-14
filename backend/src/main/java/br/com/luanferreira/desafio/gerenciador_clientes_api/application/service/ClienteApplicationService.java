@@ -4,6 +4,7 @@ import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.Clie
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper.ClienteMapper;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Cliente;
@@ -31,7 +32,8 @@ public class ClienteApplicationService {
 
     @Transactional
     public ClienteDTO criarCliente(ClienteRequestBody clienteRequestBody) {
-        clienteRepository.findByCpf(clienteRequestBody.getCpf()).ifPresent(cliente -> {
+        String cpfLimpo = CpfUtil.removerMascara(clienteRequestBody.getCpf());
+        clienteRepository.findByCpf(cpfLimpo).ifPresent(cliente -> {
             throw new CpfJaCadastradoException(clienteRequestBody.getCpf());
         });
 
@@ -50,8 +52,10 @@ public class ClienteApplicationService {
 
     @Transactional(readOnly = true)
     public Page<ClienteDTO> listarTodos(String nome, String cpf, Pageable pageable) {
+        // Remove máscara do CPF para busca
+        String cpfLimpo = cpf != null ? CpfUtil.removerMascara(cpf) : null;
         Specification<Cliente> spec = Specification.where(ClienteSpecification.comNome(nome))
-                .and(ClienteSpecification.comCpf(cpf));
+                .and(ClienteSpecification.comCpf(cpfLimpo));
         return clienteMapper.toDTO(clienteRepository.findAll(spec, pageable));
     }
 
@@ -67,7 +71,8 @@ public class ClienteApplicationService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
 
-        clienteRepository.findByCpf(clienteRequestBody.getCpf()).ifPresent(c -> {
+        String cpfLimpo = CpfUtil.removerMascara(clienteRequestBody.getCpf());
+        clienteRepository.findByCpf(cpfLimpo).ifPresent(c -> {
             if (!c.getId().equals(id)) {
                 throw new CpfJaCadastradoException(clienteRequestBody.getCpf());
             }

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClientService } from '../client.service';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { CpfUtilService } from '../../../shared/services/cpf-util.service';
 
 @Component({
   selector: 'app-client-form',
@@ -21,8 +22,21 @@ export class ClientFormComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private clientService: ClientService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cpfUtilService: CpfUtilService
   ) { }
+
+  // Validador customizado para CPF
+  cpfValidator(control: AbstractControl): {[key: string]: any} | null {
+    if (!control.value) {
+      return null; // Deixa o required lidar com valores vazios
+    }
+    
+    const cpfLimpo = this.cpfUtilService.removerMascara(control.value);
+    const isValid = this.cpfUtilService.validarFormato(cpfLimpo);
+    
+    return isValid ? null : { 'cpfInvalido': { value: control.value } };
+  }
 
   ngOnInit(): void {
     this.clientForm = this.fb.group({
@@ -32,7 +46,10 @@ export class ClientFormComponent implements OnInit {
         Validators.maxLength(100),
         Validators.pattern(/^[a-zA-ZÀ-ÿ0-9\s]+$/)
       ]],
-      cpf: ['', Validators.required],
+      cpf: ['', [
+        Validators.required,
+        this.cpfValidator.bind(this)
+      ]],
       telefones: this.fb.array([]),
       emails: this.fb.array([]),
       enderecos: this.fb.array([])
@@ -58,7 +75,7 @@ export class ClientFormComponent implements OnInit {
       // Preencher os campos principais
       this.clientForm.patchValue({
         nome: client.nome,
-        cpf: client.cpf
+        cpf: this.cpfUtilService.aplicarMascara(client.cpf) // Aplica máscara ao exibir
       });
 
       // Popular FormArray de telefones
@@ -100,6 +117,11 @@ export class ClientFormComponent implements OnInit {
   // Getter para facilitar validação do nome no template
   get nome() {
     return this.clientForm.get('nome');
+  }
+
+  // Getter para facilitar validação do CPF no template
+  get cpf() {
+    return this.clientForm.get('cpf');
   }
 
   // Métodos para gerenciar telefones
@@ -145,14 +167,39 @@ export class ClientFormComponent implements OnInit {
     this.enderecos.removeAt(index);
   }
 
+  // Método para aplicar máscara de CPF manualmente
+  onCpfChange(event: any): void {
+    let value = event.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+    
+    if (value.length <= 11) {
+      // Aplica máscara CPF: 000.000.000-00
+      if (value.length > 3 && value.length <= 6) {
+        value = value.replace(/(\d{3})(\d+)/, '$1.$2');
+      } else if (value.length > 6 && value.length <= 9) {
+        value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
+      } else if (value.length > 9) {
+        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, '$1.$2.$3-$4');
+      }
+      
+      // Atualiza o valor do campo
+      this.clientForm.get('cpf')?.setValue(value, { emitEvent: false });
+    }
+  }
+
   onSubmit(): void {
     if (this.clientForm.invalid) {
       // Marcar todos os campos como touched para mostrar erros
       this.clientForm.markAllAsTouched();
       
-      // Verificar erros específicos do nome
+      // Verificar erros específicos do CPF
+      const cpfControl = this.clientForm.get('cpf');
       const nomeControl = this.clientForm.get('nome');
-      if (nomeControl?.hasError('required')) {
+      
+      if (cpfControl?.hasError('required')) {
+        this.snackBar.open('CPF é obrigatório.', 'Fechar', { duration: 3000 });
+      } else if (cpfControl?.hasError('cpfInvalido')) {
+        this.snackBar.open('CPF inválido.', 'Fechar', { duration: 3000 });
+      } else if (nomeControl?.hasError('required')) {
         this.snackBar.open('Nome é obrigatório.', 'Fechar', { duration: 3000 });
       } else if (nomeControl?.hasError('minlength')) {
         this.snackBar.open('Nome deve ter pelo menos 3 caracteres.', 'Fechar', { duration: 3000 });
@@ -166,7 +213,10 @@ export class ClientFormComponent implements OnInit {
       return;
     }
 
-    const clientData: Cliente = this.clientForm.value;
+    const clientData: Cliente = {
+      ...this.clientForm.value,
+      cpf: this.cpfUtilService.removerMascara(this.clientForm.value.cpf) // Remove máscara antes de enviar
+    };
 
     if (this.isEditMode && this.clientId) {
       this.clientService.updateCliente(this.clientId, clientData).subscribe({

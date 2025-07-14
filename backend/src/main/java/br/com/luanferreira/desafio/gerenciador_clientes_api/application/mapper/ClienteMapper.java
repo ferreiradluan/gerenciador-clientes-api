@@ -2,6 +2,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper;
 
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Cliente;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Interface do MapStruct para mapear entre a entidade Cliente e seus DTOs
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = CpfUtil.class)
 public interface ClienteMapper {
 
     /**
@@ -21,11 +22,13 @@ public interface ClienteMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "enderecos", ignore = true) // Endereços são tratados separadamente no service
+    @Mapping(target = "cpf", expression = "java(CpfUtil.removerMascara(dto.getCpf()))")
     Cliente toEntity(ClienteRequestBody dto);
 
     /**
      * Converte entidade Cliente para ClienteDTO
      */
+    @Mapping(target = "cpf", expression = "java(CpfUtil.aplicarMascara(cliente.getCpf()))")
     ClienteDTO toDTO(Cliente cliente);
 
     /**
@@ -38,6 +41,7 @@ public interface ClienteMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "enderecos", ignore = true) // Endereços são tratados separadamente no service
+    @Mapping(target = "cpf", expression = "java(CpfUtil.removerMascara(dto.getCpf()))")
     void updateClienteFromDto(ClienteRequestBody dto, @MappingTarget Cliente cliente);
 
     /**
