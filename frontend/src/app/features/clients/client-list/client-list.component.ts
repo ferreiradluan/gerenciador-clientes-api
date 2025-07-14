@@ -60,9 +60,8 @@ export class ClientListComponent implements OnInit, AfterViewInit {
     const size = this.paginator?.pageSize || 10;
     const sortField = this.sort?.active || 'nome';
     const sortDirection = this.sort?.direction || 'asc';
-    const sort = `${sortField},${sortDirection}`;
     
-    this.clientService.getClientes(page, size, sort).subscribe({
+    this.clientService.getClientes(page, size, sortField, sortDirection, {}).subscribe({
       next: (data) => {
         this.dataSource.data = data.content;
         this.totalElements = data.totalElements;

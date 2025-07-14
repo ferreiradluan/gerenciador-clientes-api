@@ -13,18 +13,17 @@ export class ClientService {
 
   constructor(private http: HttpClient) { }
 
-  getClientes(page: number, size: number, sort: string, filters?: any): Observable<any> {
+  getClientes(page: number, size: number, sort: string, order: string, filters: { nome?: string, cpf?: string } = {}): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
-      .set('sort', sort);
+      .set('sort', `${sort},${order}`);
 
-    if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key]) {
-          params = params.set(key, filters[key]);
-        }
-      });
+    if (filters.nome) {
+      params = params.set('nome', filters.nome);
+    }
+    if (filters.cpf) {
+      params = params.set('cpf', filters.cpf);
     }
 
     return this.http.get<any>(this.apiUrl, { params });
