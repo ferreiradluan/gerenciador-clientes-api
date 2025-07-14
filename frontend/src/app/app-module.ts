@@ -1,12 +1,11 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { AuthModule } from './features/auth/auth.module';
-import { ClientsModule } from './features/clients/clients.module';
 
 @NgModule({
   declarations: [
@@ -15,13 +14,14 @@ import { ClientsModule } from './features/clients/clients.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule,
-    AuthModule,
-    ClientsModule
+    AuthModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    provideHttpClient(
+      withFetch(), // Resolve warnings NG02813-NG02818
+      withInterceptors([jwtInterceptor])
+    )
   ],
   bootstrap: [App]
 })

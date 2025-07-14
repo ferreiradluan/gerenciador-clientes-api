@@ -15,7 +15,7 @@ import { Cliente } from '../../../shared/models/cliente.model';
 })
 export class ClientListComponent implements OnInit, AfterViewInit {
 
-  displayedColumns: string[] = ['id', 'nome', 'cpf', 'emails', 'acoes'];
+  displayedColumns: string[] = ['id', 'nome', 'cpf', 'acoes'];
   dataSource = new MatTableDataSource<Cliente>();
   totalElements = 0;
   isLoading = false;
@@ -34,24 +34,31 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Configurar paginador e ordenador
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    // Configurar paginador e ordenador se estiverem disponíveis
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      
+      // Inscrever-se nos eventos de mudança do paginador
+      this.paginator.page.subscribe(() => {
+        this.loadClients();
+      });
+    }
+    
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+      
+      // Inscrever-se nos eventos de mudança do ordenador
+      this.sort.sortChange.subscribe(() => {
+        // Resetar para primeira página quando mudar ordenação
+        if (this.paginator) {
+          this.paginator.pageIndex = 0;
+        }
+        this.loadClients();
+      });
+    }
     
     // Carregar dados iniciais
     this.loadClients();
-    
-    // Inscrever-se nos eventos de mudança do paginador
-    this.paginator.page.subscribe(() => {
-      this.loadClients();
-    });
-    
-    // Inscrever-se nos eventos de mudança do ordenador
-    this.sort.sortChange.subscribe(() => {
-      // Resetar para primeira página quando mudar ordenação
-      this.paginator.pageIndex = 0;
-      this.loadClients();
-    });
   }
 
   loadClients(): void {

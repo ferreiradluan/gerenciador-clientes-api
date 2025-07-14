@@ -5,13 +5,19 @@
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="fill">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="username" placeholder="seuemail@exemplo.com">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Usuário</mat-label>
+          <input matInput formControlName="login" placeholder="Digite seu usuário" required>
+          <mat-error *ngIf="loginForm.get('login')?.hasError('required')">
+            Usuário é obrigatório.
+          </mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Senha</mat-label>
-          <input matInput formControlName="password" type="password">
+          <input matInput formControlName="senha" type="password">
+          <mat-error *ngIf="loginForm.get('senha')?.hasError('required')">
+            Senha é obrigatória.
+          </mat-error>
         </mat-form-field>
         <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Entrar</button>
       </form>

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/clientes")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 @Tag(name = "Clientes", description = "API para Gerenciamento de Clientes")
 public class ClienteController {
 

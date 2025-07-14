@@ -2,18 +2,125 @@
   <h2>{{ isEditMode ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
 
   <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="fill">
-      <mat-label>Nome</mat-label>
-      <input matInput formControlName="nome">
-    </mat-form-field>
+    <!-- Dados básicos -->
+    <div class="basic-info">
+      <h3>Dados Pessoais</h3>
+      <mat-form-field appearance="fill">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" required>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>CPF</mat-label>
-      <input matInput formControlName="cpf">
-    </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>CPF</mat-label>
+        <input matInput formControlName="cpf" required>
+      </mat-form-field>
+    </div>
 
-    <!-- Adicionar campos para telefones, emails e endereços -->
+    <!-- Telefones -->
+    <div class="telefones-section">
+      <h3>Telefones</h3>
+      <div formArrayName="telefones">
+        <div *ngFor="let telefone of telefones.controls; let i = index" [formGroupName]="i" class="telefone-row">
+          <mat-form-field appearance="fill">
+            <mat-label>DDD</mat-label>
+            <input matInput formControlName="ddd" required>
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Número</mat-label>
+            <input matInput formControlName="numero" required>
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Tipo</mat-label>
+            <mat-select formControlName="tipo" required>
+              <mat-option value="CELULAR">Celular</mat-option>
+              <mat-option value="FIXO">Fixo</mat-option>
+              <mat-option value="COMERCIAL">Comercial</mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <button mat-icon-button type="button" (click)="removeTelefone(i)" *ngIf="telefones.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      <button mat-button type="button" (click)="addTelefone()">
+        <mat-icon>add</mat-icon> Adicionar Telefone
+      </button>
+    </div>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="clientForm.invalid">Salvar</button>
+    <!-- Emails -->
+    <div class="emails-section">
+      <h3>E-mails</h3>
+      <div formArrayName="emails">
+        <div *ngFor="let email of emails.controls; let i = index" [formGroupName]="i" class="email-row">
+          <mat-form-field appearance="fill">
+            <mat-label>E-mail</mat-label>
+            <input matInput formControlName="enderecoEmail" type="email" required>
+          </mat-form-field>
+          
+          <button mat-icon-button type="button" (click)="removeEmail(i)" *ngIf="emails.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      <button mat-button type="button" (click)="addEmail()">
+        <mat-icon>add</mat-icon> Adicionar E-mail
+      </button>
+    </div>
+
+    <!-- Endereços -->
+    <div class="enderecos-section">
+      <h3>Endereços</h3>
+      <div formArrayName="enderecos">
+        <div *ngFor="let endereco of enderecos.controls; let i = index" [formGroupName]="i" class="endereco-row">
+          <mat-form-field appearance="fill">
+            <mat-label>CEP</mat-label>
+            <input matInput formControlName="cep" required>
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Logradouro</mat-label>
+            <input matInput formControlName="logradouro">
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Bairro</mat-label>
+            <input matInput formControlName="bairro">
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Cidade</mat-label>
+            <input matInput formControlName="cidade">
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>UF</mat-label>
+            <input matInput formControlName="uf">
+          </mat-form-field>
+          
+          <mat-form-field appearance="fill">
+            <mat-label>Complemento</mat-label>
+            <input matInput formControlName="complemento">
+          </mat-form-field>
+          
+          <button mat-icon-button type="button" (click)="removeEndereco(i)" *ngIf="enderecos.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      <button mat-button type="button" (click)="addEndereco()">
+        <mat-icon>add</mat-icon> Adicionar Endereço
+      </button>
+    </div>
+
+    <!-- Botões -->
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="clientForm.invalid">
+        {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+      </button>
+      <button mat-button type="button" (click)="router.navigate(['/clientes'])">Cancelar</button>
+    </div>
   </form>
 </div>

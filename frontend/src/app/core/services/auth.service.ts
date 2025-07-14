@@ -12,8 +12,14 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  login(credentials: { username: string, password: string }): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/auth/login`, credentials)
+  login(credentials: { login: string, senha: string }): Observable<any> {
+    // Mapeia os campos do frontend para o que o backend espera
+    const loginRequest = {
+      username: credentials.login,
+      password: credentials.senha
+    };
+    
+    return this.http.post<any>(`${environment.apiUrl}/auth/login`, loginRequest)
       .pipe(
         tap(response => {
           if (response && response.token) {
