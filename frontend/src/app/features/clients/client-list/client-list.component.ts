@@ -8,14 +8,15 @@ import { Cliente } from '../../../shared/models/cliente.model';
 @Component({
   selector: 'app-client-list',
   templateUrl: './client-list.component.html',
-  styleUrls: ['./client-list.component.scss']
+  styleUrls: ['./client-list.component.scss'],
+  standalone: false
 })
 export class ClientListComponent implements OnInit {
 
   displayedColumns: string[] = ['id', 'nome', 'cpf', 'acoes'];
   dataSource = new MatTableDataSource<Cliente>();
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(private clientService: ClientService, private router: Router) { }
 

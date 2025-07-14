@@ -7,13 +7,13 @@ import { Cliente } from '../../../shared/models/cliente.model';
 @Component({
   selector: 'app-client-form',
   templateUrl: './client-form.component.html',
-  styleUrls: ['./client-form.component.scss']
+  styleUrls: ['./client-form.component.scss'],
+  standalone: false
 })
 export class ClientFormComponent implements OnInit {
-
-  clientForm: FormGroup;
+  clientForm!: FormGroup;
   isEditMode = false;
-  clientId: number;
+  clientId?: number;
 
   constructor(
     private fb: FormBuilder,
@@ -54,7 +54,7 @@ export class ClientFormComponent implements OnInit {
   onSubmit(): void {
     if (this.clientForm.valid) {
       const clientData: Cliente = this.clientForm.value;
-      if (this.isEditMode) {
+      if (this.isEditMode && this.clientId) {
         this.clientService.updateCliente(this.clientId, clientData).subscribe(() => {
           this.router.navigate(['/clientes']);
         });

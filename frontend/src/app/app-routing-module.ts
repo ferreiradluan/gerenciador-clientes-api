@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: 'clientes', component: ClientListComponent, canActivate: [AuthGuard] },
   { path: 'clientes/novo', component: ClientFormComponent, canActivate: [AuthGuard] },
   { path: 'clientes/editar/:id', component: ClientFormComponent, canActivate: [AuthGuard] },
-  { path: '', redirectTo: '/clientes', pathMatch: 'full' }
+  { path: '', redirectTo: '/login', pathMatch: 'full' }
 ];
 
 @NgModule({
