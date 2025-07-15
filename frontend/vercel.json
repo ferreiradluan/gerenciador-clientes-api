@@ -1,13 +1,9 @@
 {
   "buildCommand": "npm run build -- --configuration production",
-  "outputDirectory": "dist",
+  "outputDirectory": "dist/frontend",
   "installCommand": "npm ci",
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  
   "rewrites": [
     {
       "source": "/(.*)",
