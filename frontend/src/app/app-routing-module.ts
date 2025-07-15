@@ -10,7 +10,8 @@ const routes: Routes = [
     loadChildren: () => import('./features/clients/clients.module').then(m => m.ClientsModule),
     canActivate: [AuthGuard] 
   },
-  { path: '', redirectTo: '/login', pathMatch: 'full' }
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login' } // Adiciona wildcard route
 ];
 
 @NgModule({
