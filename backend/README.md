@@ -2,8 +2,8 @@
 
 API RESTful para gerenciamento de clientes com autenticação JWT e validações brasileiras.
 
-[![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/projects/jdk/17/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-brightgreen)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-8-orange)](https://openjdk.java.net/projects/jdk8/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 
 ## 🌐 Produção
@@ -28,7 +28,7 @@ docker-compose up -d
 
 ## 🛠️ Tecnologias
 
-- **Java 17** + **Spring Boot 3.1.5**
+- **Java 8** + **Spring Boot 2.7.18**
 - **Spring Security** + **JWT**
 - **PostgreSQL** + **JPA/Hibernate**
 - **Maven** + **Docker**

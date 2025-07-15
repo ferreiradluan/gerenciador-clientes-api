@@ -2,8 +2,8 @@
 
 Sistema completo para gerenciamento de clientes com API RESTful e interface web moderna.
 
-[![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/projects/jdk/17/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-brightgreen)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-8-orange)](https://openjdk.java.net/projects/jdk8/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-20-red)](https://angular.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 
@@ -28,7 +28,7 @@ Sistema completo para gerenciamento de clientes com API RESTful e interface web 
 
 ## 🛠️ Tecnologias
 
-- **Backend:** Spring Boot 3.1.5 + Java 17
+- **Backend:** Spring Boot 2.7.18 + Java 8
 - **Frontend:** Angular 20 + TypeScript
 - **Banco:** PostgreSQL
 - **Segurança:** JWT + Spring Security
