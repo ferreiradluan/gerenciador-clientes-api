@@ -1,10 +1,6 @@
 backend/
 target/
-node_modules/
 .git/
-.gitignore
-README.md
 docker-compose.yml
-*.md
-LICENSE
 DATA_INITIALIZER.md
+LICENSE
