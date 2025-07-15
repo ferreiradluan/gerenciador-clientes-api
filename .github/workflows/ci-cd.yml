@@ -111,13 +111,6 @@ jobs:
         
       - name: Build Frontend for production
         run: npm --prefix frontend run build -- --configuration production
-      - name: Check Vercel config for conflicting routes
-        run: |
-          if grep -q '"routes"' frontend/vercel.json; then
-            echo "Removendo propriedade 'routes' do vercel.json para evitar conflito com rewrites, redirects, etc."
-            jq 'del(.routes)' frontend/vercel.json > frontend/vercel.json.tmp && mv frontend/vercel.json.tmp frontend/vercel.json
-          fi
-        shell: bash
 
       - name: Deploy Frontend to Vercel
         uses: amondnet/vercel-action@v25
