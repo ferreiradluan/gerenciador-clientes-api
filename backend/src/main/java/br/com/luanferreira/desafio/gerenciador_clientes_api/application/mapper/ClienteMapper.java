@@ -1,8 +1,6 @@
 package br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper;
 
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.*;
-import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CepUtil;
-import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Cliente;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Email;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Endereco;
@@ -13,13 +11,12 @@ import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Interface do MapStruct para mapear entre a entidade Cliente e seus DTOs
  */
-@Mapper(componentModel = "spring", imports = {CpfUtil.class, CepUtil.class})
+@Mapper(componentModel = "spring")
 public interface ClienteMapper {
 
     /**
@@ -27,7 +24,7 @@ public interface ClienteMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "enderecos", ignore = true) // Endereços são tratados separadamente no service
-    @Mapping(target = "cpf", expression = "java(CpfUtil.removerMascara(dto.getCpf()))")
+    @Mapping(target = "cpf", expression = "java(br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil.removerMascara(dto.getCpf()))")
     Cliente toEntity(ClienteRequestBody dto);
 
     /**
@@ -41,7 +38,7 @@ public interface ClienteMapper {
         ClienteDTO dto = new ClienteDTO();
         dto.setId(cliente.getId());
         dto.setNome(cliente.getNome());
-        dto.setCpf(CpfUtil.aplicarMascara(cliente.getCpf()));
+        dto.setCpf(br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil.aplicarMascara(cliente.getCpf()));
         dto.setCpfLimpo(cliente.getCpf());
         
         // Converte telefones
@@ -82,7 +79,7 @@ public interface ClienteMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "enderecos", ignore = true) // Endereços são tratados separadamente no service
-    @Mapping(target = "cpf", expression = "java(CpfUtil.removerMascara(dto.getCpf()))")
+    @Mapping(target = "cpf", expression = "java(br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil.removerMascara(dto.getCpf()))")
     void updateClienteFromDto(ClienteRequestBody dto, @MappingTarget Cliente cliente);
 
     /**
@@ -118,7 +115,7 @@ public interface ClienteMapper {
         }
         return new EnderecoResponseDTO(
                 endereco.getId(),
-                CepUtil.aplicarMascara(endereco.getCep()),
+                br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CepUtil.aplicarMascara(endereco.getCep()),
                 endereco.getCep(),
                 endereco.getLogradouro(),
                 endereco.getBairro(),
