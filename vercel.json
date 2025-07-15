@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm run build --prefix frontend -- --configuration production",
+  "buildCommand": "cd frontend && npm run build -- --configuration production",
   "outputDirectory": "frontend/dist",
-  "installCommand": "npm ci --prefix frontend",
+  "installCommand": "cd frontend && npm install",
   "framework": "angular",
   "rewrites": [
     {
