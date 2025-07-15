@@ -7,6 +7,9 @@ import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Email;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Endereco;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Telefone;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,32 +26,32 @@ public class TestDataBuilder {
         return new ClienteRequestBody(
                 "João Silva",
                 CPF_VALIDO,
-                Set.of(criarTelefoneValido()),
-                Set.of(criarEmailValido()),
-                List.of(criarEnderecoValido())
+                new HashSet<>(Collections.singletonList(criarTelefoneValido())),
+                new HashSet<>(Collections.singletonList(criarEmailValido())),
+                Collections.singletonList(criarEnderecoValido())
         );
     }
 
     public static ClienteRequestBody criarClienteRequestComNome(String nome) {
-        var request = criarClienteRequestValido();
+        ClienteRequestBody request = criarClienteRequestValido();
         request.setNome(nome);
         return request;
     }
 
     public static ClienteRequestBody criarClienteRequestComCpf(String cpf) {
-        var request = criarClienteRequestValido();
+        ClienteRequestBody request = criarClienteRequestValido();
         request.setCpf(cpf);
         return request;
     }
 
     public static Cliente criarClienteComId(Long id) {
-        var cliente = new Cliente();
+        Cliente cliente = new Cliente();
         cliente.setId(id);
         cliente.setNome("João Silva");
         cliente.setCpf(CPF_VALIDO);
-        cliente.setTelefones(Set.of(criarTelefoneValido()));
-        cliente.setEmails(Set.of(criarEmailValido()));
-        cliente.setEnderecos(List.of(criarEnderecoEntity()));
+        cliente.setTelefones(new HashSet<>(Collections.singletonList(criarTelefoneValido())));
+        cliente.setEmails(new HashSet<>(Collections.singletonList(criarEmailValido())));
+        cliente.setEnderecos(Collections.singletonList(criarEnderecoEntity()));
         return cliente;
     }
 
@@ -73,7 +76,7 @@ public class TestDataBuilder {
     }
 
     public static Endereco criarEnderecoEntity() {
-        var endereco = new Endereco();
+        Endereco endereco = new Endereco();
         endereco.setId(1L);
         endereco.setCep(CEP_VALIDO);
         endereco.setLogradouro("Praça da Sé");
@@ -90,26 +93,26 @@ public class TestDataBuilder {
     public static class DadosInvalidos {
         
         public static ClienteRequestBody comCpfInvalido() {
-            var request = criarClienteRequestValido();
+            ClienteRequestBody request = criarClienteRequestValido();
             request.setCpf("12345678900"); // CPF inválido
             return request;
         }
 
         public static ClienteRequestBody comNomeVazio() {
-            var request = criarClienteRequestValido();
+            ClienteRequestBody request = criarClienteRequestValido();
             request.setNome("");
             return request;
         }
 
         public static ClienteRequestBody comEmailInvalido() {
-            var request = criarClienteRequestValido();
-            request.setEmails(Set.of(new Email("email-invalido")));
+            ClienteRequestBody request = criarClienteRequestValido();
+            request.setEmails(new HashSet<>(Collections.singletonList(new Email("email-invalido"))));
             return request;
         }
 
         public static ClienteRequestBody comTelefoneInvalido() {
-            var request = criarClienteRequestValido();
-            request.setTelefones(Set.of(new Telefone("1", "123", "CELULAR"))); // DDD e número inválidos
+            ClienteRequestBody request = criarClienteRequestValido();
+            request.setTelefones(new HashSet<>(Collections.singletonList(new Telefone("1", "123", "CELULAR")))); // DDD e número inválidos
             return request;
         }
     }

@@ -49,7 +49,7 @@ class ClienteApplicationServiceTest {
     @Test
     void criarCliente_ComCpfNaoExistente_DeveCriarCliente() {
         // CPF válido para teste
-        ClienteRequestBody requestBody = new ClienteRequestBody("Nome", "11144477735", Collections.singleton(new Telefone("11", "999999999", "Celular")),
+        ClienteRequestBody requestBody = new ClienteRequestBody("Nome", "11144477735", Collections.singleton(new Telefone("11", "999999999", "CELULAR")),
                 Collections.singleton(new Email("test@test.com")), Collections.singletonList(new EnderecoDTO("01001000", null, null, null, null, "Apto 1")));
         Cliente cliente = new Cliente();
         ClienteDTO clienteDTO = new ClienteDTO();
@@ -79,18 +79,18 @@ class ClienteApplicationServiceTest {
     @Test
     void listarTodos_DeveRetornarPaginaDeClientes() {
         // Given
-        var cliente = new Cliente();
+        Cliente cliente = new Cliente();
         cliente.setId(1L);
         cliente.setNome("João Silva");
         cliente.setCpf("11144477735");
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
         clienteDTO.setCpf("11144477735");
         
-        var clientesPage = new PageImpl<>(Collections.singletonList(cliente));
-        var clientesDTOPage = new PageImpl<>(Collections.singletonList(clienteDTO));
+        Page<Cliente> clientesPage = new PageImpl<>(Collections.singletonList(cliente));
+        Page<ClienteDTO> clientesDTOPage = new PageImpl<>(Collections.singletonList(clienteDTO));
 
         when(clienteRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
                 .thenReturn(clientesPage);
@@ -107,12 +107,12 @@ class ClienteApplicationServiceTest {
     @Test
     void buscarPorId_ComIdExistente_DeveRetornarCliente() {
         // Given
-        var cliente = new Cliente();
+        Cliente cliente = new Cliente();
         cliente.setId(1L);
         cliente.setNome("João Silva");
         cliente.setCpf("11144477735");
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
         clienteDTO.setCpf("11144477735");

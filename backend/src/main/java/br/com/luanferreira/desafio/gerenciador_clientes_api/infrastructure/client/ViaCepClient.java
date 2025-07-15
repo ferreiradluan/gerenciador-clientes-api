@@ -2,7 +2,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.infrastructure.clie
 
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ViaCepException;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -20,7 +20,7 @@ public class ViaCepClient {
         return webClient.get()
                 .uri("/{cep}/json", cep)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response -> Mono.error(new ViaCepException("Erro ao consultar CEP: " + cep)))
+                .onStatus(HttpStatus::isError, response -> Mono.error(new ViaCepException("Erro ao consultar CEP: " + cep)))
                 .bodyToMono(EnderecoDTO.class)
                 .block();
     }

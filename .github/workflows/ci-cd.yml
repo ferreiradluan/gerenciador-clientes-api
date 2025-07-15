@@ -1,90 +1,93 @@
-name: Backend CI/CD Pipeline
+name: CI/CD Pipeline - Gerenciador de Clientes
 
 on:
   push:
-    branches: [ developer, main ]
-    paths: 
-      - 'backend/**'
-      - '.github/workflows/**'
+    branches: [ main, developer ]
   pull_request:
-    branches: [ developer, main ]
-    paths: 
-      - 'backend/**'
+    branches: [ main ]
 
 jobs:
-  test-backend:
+  # Build e Test - roda em ambas as branches (developer e main)
+  build_and_test:
+    name: Build & Test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: gerenciador_clientes_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Cache Maven dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Run backend tests
-      run: |
-        cd backend
-        ./mvnw clean test
-      env:
-        DB_USERNAME: postgres
-        DB_PASSWORD: postgres
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/gerenciador_clientes_db
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  build-backend:
-    runs-on: ubuntu-latest
-    needs: test-backend
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Cache Maven dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Build backend with Maven
-      run: |
-        cd backend
-        ./mvnw clean package -DskipTests
+      # Backend - Java 8 + Maven
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-  deploy-heroku:
+      - name: Build & Test Backend
+        run: mvn -f backend/pom.xml clean install
+
+      # Frontend - Node.js + Angular
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: npm --prefix frontend ci
+
+      - name: Build Frontend
+        run: npm --prefix frontend run build -- --configuration production
+
+      - name: Test Frontend
+        run: npm --prefix frontend run test -- --watch=false --browsers=ChromeHeadless
+
+  # Deploy Backend - roda apenas na branch main
+  deploy_backend:
+    name: Deploy Backend to Heroku
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: build-backend
-    if: github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v4
-    - name: Install Heroku CLI
-      run: |
-        curl https://cli-assets.heroku.com/install.sh | sh
-    - name: Deploy Backend to Heroku
-      uses: akhileshns/heroku-deploy@v3.13.15
-      with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-        heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        appdir: "backend"
-        buildpack: "heroku/java"
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Deploy Backend to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.14
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          appdir: "backend"
+          procfile: "web: java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/gerenciador-clientes-api-0.0.1-SNAPSHOT.jar"
+
+  # Deploy Frontend - roda apenas na branch main
+  deploy_frontend:
+    name: Deploy Frontend to Vercel
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          
+      - name: Deploy Frontend to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_SCOPE }}
+          working-directory: frontend

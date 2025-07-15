@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,12 +61,12 @@ class ClienteServiceTDDTest {
     @DisplayName("Deve lançar exceção ao tentar criar cliente com CPF já existente")
     void criar_deveLancarExcecao_quandoCpfJaExiste() {
         // Given: Um DTO de cliente e um CPF que já sabemos que existe no banco
-        var dto = criarClienteRequestValido();
+        ClienteRequestBody dto = criarClienteRequestValido();
         dto.setCpf("12345678901");
         when(clienteRepository.findByCpf(dto.getCpf())).thenReturn(Optional.of(new Cliente()));
 
         // When & Then: Verificamos se a exceção correta é lançada
-        var exception = assertThrows(CpfJaCadastradoException.class, () -> {
+        CpfJaCadastradoException exception = assertThrows(CpfJaCadastradoException.class, () -> {
             clienteService.criarCliente(dto);
         });
 
@@ -79,16 +80,16 @@ class ClienteServiceTDDTest {
     @DisplayName("Deve criar um cliente com sucesso quando os dados são válidos")
     void criar_deveCriarCliente_quandoDadosValidos() {
         // Given: Um DTO de cliente válido
-        var dto = criarClienteRequestValido();
+        ClienteRequestBody dto = criarClienteRequestValido();
         dto.setCpf("11122233344");
-        var clienteMapeado = new Cliente();
-        var clienteSalvo = new Cliente();
+        Cliente clienteMapeado = new Cliente();
+        Cliente clienteSalvo = new Cliente();
         clienteSalvo.setId(1L);
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
         clienteDTO.setCpf("11122233344");
-        var enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
+        EnderecoDTO enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
 
         when(clienteRepository.findByCpf(dto.getCpf())).thenReturn(Optional.empty());
         when(clienteMapper.toEntity(dto)).thenReturn(clienteMapeado);
@@ -97,7 +98,7 @@ class ClienteServiceTDDTest {
         when(clienteMapper.toDTO(clienteSalvo)).thenReturn(clienteDTO);
 
         // When
-        var clienteResponse = clienteService.criarCliente(dto);
+        ClienteDTO clienteResponse = clienteService.criarCliente(dto);
 
         // Then
         assertNotNull(clienteResponse);
@@ -110,12 +111,12 @@ class ClienteServiceTDDTest {
     @DisplayName("Deve buscar cliente por ID com sucesso")
     void buscarPorId_deveRetornarCliente_quandoExiste() {
         // Given
-        var cliente = new Cliente();
+        Cliente cliente = new Cliente();
         cliente.setId(1L);
         cliente.setNome("João Silva");
         cliente.setCpf("11144477735");
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
         clienteDTO.setCpf("11144477735");
@@ -124,7 +125,7 @@ class ClienteServiceTDDTest {
         when(clienteMapper.toDTO(cliente)).thenReturn(clienteDTO);
 
         // When
-        var resultado = clienteService.buscarPorId(1L);
+        ClienteDTO resultado = clienteService.buscarPorId(1L);
 
         // Then
         assertNotNull(resultado);
@@ -139,7 +140,7 @@ class ClienteServiceTDDTest {
         when(clienteRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
-        var exception = assertThrows(ClienteNaoEncontradoException.class, () -> {
+        ClienteNaoEncontradoException exception = assertThrows(ClienteNaoEncontradoException.class, () -> {
             clienteService.buscarPorId(999L);
         });
 
@@ -150,25 +151,25 @@ class ClienteServiceTDDTest {
     @DisplayName("Deve listar clientes com paginação")
     void listarTodos_deveRetornarPaginaClientes() {
         // Given
-        var pageable = PageRequest.of(0, 10);
-        var cliente = new Cliente();
+        Pageable pageable = PageRequest.of(0, 10);
+        Cliente cliente = new Cliente();
         cliente.setId(1L);
         cliente.setNome("João Silva");
         cliente.setCpf("11144477735");
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
         clienteDTO.setCpf("11144477735");
         
-        var clientesPage = new PageImpl<>(List.of(cliente), pageable, 1);
-        var clientesDTOPage = new PageImpl<>(List.of(clienteDTO), pageable, 1);
+        Page<Cliente> clientesPage = new PageImpl<>(Collections.singletonList(cliente), pageable, 1);
+        Page<ClienteDTO> clientesDTOPage = new PageImpl<>(Collections.singletonList(clienteDTO), pageable, 1);
 
         when(clienteRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(clientesPage);
         when(clienteMapper.toDTO(clientesPage)).thenReturn(clientesDTOPage);
 
         // When
-        var resultado = clienteService.listarTodos(null, null, pageable);
+        Page<ClienteDTO> resultado = clienteService.listarTodos(null, null, pageable);
 
         // Then
         assertNotNull(resultado);
@@ -180,20 +181,20 @@ class ClienteServiceTDDTest {
     @DisplayName("Deve atualizar cliente existente")
     void atualizarCliente_deveAtualizarComSucesso_quandoClienteExiste() {
         // Given
-        var clienteExistente = new Cliente();
+        Cliente clienteExistente = new Cliente();
         clienteExistente.setId(1L);
         clienteExistente.setNome("João Silva");
         clienteExistente.setCpf("11144477735");
         
-        var clienteRequest = criarClienteRequestValido();
+        ClienteRequestBody clienteRequest = criarClienteRequestValido();
         clienteRequest.setNome("João Silva Atualizado");
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva Atualizado");
         clienteDTO.setCpf("11144477735");
         
-        var enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
+        EnderecoDTO enderecoViaCep = new EnderecoDTO("01001000", "Praça da Sé", "Sé", "São Paulo", "SP", null);
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteExistente));
         when(clienteRepository.findByCpf(anyString())).thenReturn(Optional.of(clienteExistente));
@@ -202,7 +203,7 @@ class ClienteServiceTDDTest {
         when(clienteMapper.toDTO(clienteExistente)).thenReturn(clienteDTO);
 
         // When
-        var resultado = clienteService.atualizarCliente(1L, clienteRequest);
+        ClienteDTO resultado = clienteService.atualizarCliente(1L, clienteRequest);
 
         // Then
         assertNotNull(resultado);
@@ -232,7 +233,7 @@ class ClienteServiceTDDTest {
         when(clienteRepository.existsById(999L)).thenReturn(false);
 
         // When & Then
-        var exception = assertThrows(ClienteNaoEncontradoException.class, () -> {
+        ClienteNaoEncontradoException exception = assertThrows(ClienteNaoEncontradoException.class, () -> {
             clienteService.deletarCliente(999L);
         });
 
@@ -242,16 +243,16 @@ class ClienteServiceTDDTest {
 
     // Método auxiliar para criação de objetos de teste
     private ClienteRequestBody criarClienteRequestValido() {
-        var telefone = new Telefone("11", "987654321", "CELULAR");
-        var email = new Email("joao@teste.com");
-        var endereco = new EnderecoDTO("01001000", null, null, null, null, "Apto 101");
+        Telefone telefone = new Telefone("11", "987654321", "CELULAR");
+        Email email = new Email("joao@teste.com");
+        EnderecoDTO endereco = new EnderecoDTO("01001000", null, null, null, null, "Apto 101");
 
         return new ClienteRequestBody(
                 "João Silva",
                 "11144477735",
-                Set.of(telefone),
-                Set.of(email),
-                List.of(endereco)
+                new HashSet<>(Collections.singletonList(telefone)),
+                new HashSet<>(Collections.singletonList(email)),
+                Collections.singletonList(endereco)
         );
     }
 }

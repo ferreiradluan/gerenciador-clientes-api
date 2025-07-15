@@ -1,8 +1,9 @@
 package br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ public class Cliente {
     private Long id;
 
     @NotBlank(message = "O nome não pode ser nulo ou vazio")
+    @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ0-9\\s]+$", message = "O nome deve conter apenas letras, números e espaços")
     private String nome;
 
     @NotBlank(message = "O CPF não pode ser nulo ou vazio")

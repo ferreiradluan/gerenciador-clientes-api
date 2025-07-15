@@ -1,5 +1,6 @@
 package br.com.luanferreira.desafio.gerenciador_clientes_api.controller;
 
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.infrastructure.client.ViaCepClient;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.util.TestDataBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +45,7 @@ class ClienteControllerExtendedIntegrationTest {
     @DisplayName("Deve retornar 400 ao tentar criar cliente com CPF inválido")
     void criarCliente_deveRetornar400_quandoCpfInvalido() throws Exception {
         // Given
-        var clienteRequest = TestDataBuilder.DadosInvalidos.comCpfInvalido();
+        ClienteRequestBody clienteRequest = TestDataBuilder.DadosInvalidos.comCpfInvalido();
 
         // When & Then
         mockMvc.perform(post("/api/clientes")
@@ -59,7 +60,7 @@ class ClienteControllerExtendedIntegrationTest {
     @DisplayName("Deve retornar 400 ao tentar criar cliente com nome vazio")
     void criarCliente_deveRetornar400_quandoNomeVazio() throws Exception {
         // Given
-        var clienteRequest = TestDataBuilder.DadosInvalidos.comNomeVazio();
+        ClienteRequestBody clienteRequest = TestDataBuilder.DadosInvalidos.comNomeVazio();
 
         // When & Then
         mockMvc.perform(post("/api/clientes")

@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 import java.util.Optional;
@@ -42,13 +43,13 @@ class ClienteServiceTest {
     @DisplayName("Deve lançar exceção ao tentar criar cliente com CPF já existente")
     void criar_deveLancarExcecao_quandoCpfJaExiste() {
         // given: Um DTO de cliente e um CPF que já sabemos que existe no banco
-        var dto = new ClienteRequestBody();
+        ClienteRequestBody dto = new ClienteRequestBody();
         dto.setCpf("12345678901");
         when(clienteRepository.findByCpf(dto.getCpf())).thenReturn(Optional.of(new Cliente()));
 
         // when & then: Verificamos se a exceção correta é lançada
         // assert that calling criar method throws CpfJaCadastradoException with a specific message
-        var exception = assertThrows(CpfJaCadastradoException.class, () -> {
+        CpfJaCadastradoException exception = assertThrows(CpfJaCadastradoException.class, () -> {
             clienteService.criarCliente(dto);
         });
 
@@ -63,16 +64,16 @@ class ClienteServiceTest {
     void criar_deveCriarCliente_quandoDadosValidos() {
         // given: Um DTO de cliente válido
         // Complete o teste para o caminho feliz do método criar cliente, mockando o mapper e o save do repositório
-        var dto = new ClienteRequestBody();
+        ClienteRequestBody dto = new ClienteRequestBody();
         dto.setCpf("11122233344");
         dto.setNome("João Silva");
-        dto.setEnderecos(List.of()); // Adicionando lista vazia de endereços
+        dto.setEnderecos(Collections.emptyList()); // Adicionando lista vazia de endereços
         
-        var clienteMapeado = new Cliente();
-        var clienteSalvo = new Cliente();
+        Cliente clienteMapeado = new Cliente();
+        Cliente clienteSalvo = new Cliente();
         clienteSalvo.setId(1L);
         
-        var clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(1L);
         clienteDTO.setNome("João Silva");
 
@@ -82,7 +83,7 @@ class ClienteServiceTest {
         when(clienteMapper.toDTO(clienteSalvo)).thenReturn(clienteDTO);
 
         // when
-        var clienteResponse = clienteService.criarCliente(dto);
+        ClienteDTO clienteResponse = clienteService.criarCliente(dto);
 
         // then
         assertNotNull(clienteResponse);

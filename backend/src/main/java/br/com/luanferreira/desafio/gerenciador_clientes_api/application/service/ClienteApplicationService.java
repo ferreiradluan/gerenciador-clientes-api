@@ -4,6 +4,8 @@ import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.Clie
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.ClienteRequestBody;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.dto.EnderecoDTO;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.application.mapper.ClienteMapper;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CpfUtil;
+import br.com.luanferreira.desafio.gerenciador_clientes_api.application.util.CepUtil;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.model.Cliente;
@@ -31,7 +33,8 @@ public class ClienteApplicationService {
 
     @Transactional
     public ClienteDTO criarCliente(ClienteRequestBody clienteRequestBody) {
-        clienteRepository.findByCpf(clienteRequestBody.getCpf()).ifPresent(cliente -> {
+        String cpfLimpo = CpfUtil.removerMascara(clienteRequestBody.getCpf());
+        clienteRepository.findByCpf(cpfLimpo).ifPresent(cliente -> {
             throw new CpfJaCadastradoException(clienteRequestBody.getCpf());
         });
 
@@ -50,8 +53,10 @@ public class ClienteApplicationService {
 
     @Transactional(readOnly = true)
     public Page<ClienteDTO> listarTodos(String nome, String cpf, Pageable pageable) {
+        // Remove máscara do CPF para busca
+        String cpfLimpo = cpf != null ? CpfUtil.removerMascara(cpf) : null;
         Specification<Cliente> spec = Specification.where(ClienteSpecification.comNome(nome))
-                .and(ClienteSpecification.comCpf(cpf));
+                .and(ClienteSpecification.comCpf(cpfLimpo));
         return clienteMapper.toDTO(clienteRepository.findAll(spec, pageable));
     }
 
@@ -67,7 +72,8 @@ public class ClienteApplicationService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
 
-        clienteRepository.findByCpf(clienteRequestBody.getCpf()).ifPresent(c -> {
+        String cpfLimpo = CpfUtil.removerMascara(clienteRequestBody.getCpf());
+        clienteRepository.findByCpf(cpfLimpo).ifPresent(c -> {
             if (!c.getId().equals(id)) {
                 throw new CpfJaCadastradoException(clienteRequestBody.getCpf());
             }
@@ -96,13 +102,24 @@ public class ClienteApplicationService {
     }
 
     private Endereco buscarEnderecoPorCep(EnderecoDTO enderecoDTO) {
-        EnderecoDTO enderecoViaCep = viaCepClient.consultarCep(enderecoDTO.getCep());
+        // Remove máscara do CEP antes de consultar ViaCEP
+        String cepLimpo = CepUtil.removerMascara(enderecoDTO.getCep());
+        EnderecoDTO enderecoViaCep = viaCepClient.consultarCep(cepLimpo);
+        
         Endereco endereco = new Endereco();
-        endereco.setCep(enderecoViaCep.getCep());
-        endereco.setLogradouro(enderecoViaCep.getLogradouro());
-        endereco.setBairro(enderecoViaCep.getBairro());
-        endereco.setCidade(enderecoViaCep.getCidade());
-        endereco.setUf(enderecoViaCep.getUf());
+        endereco.setCep(cepLimpo); // Persiste sem máscara
+        
+        // Se o usuário não informou os dados, usa os dados do ViaCEP
+        // Se informou, usa os dados do usuário (permitindo alteração)
+        endereco.setLogradouro(enderecoDTO.getLogradouro() != null ? 
+            enderecoDTO.getLogradouro() : enderecoViaCep.getLogradouro());
+        endereco.setBairro(enderecoDTO.getBairro() != null ? 
+            enderecoDTO.getBairro() : enderecoViaCep.getBairro());
+        endereco.setCidade(enderecoDTO.getCidade() != null ? 
+            enderecoDTO.getCidade() : enderecoViaCep.getCidade());
+        endereco.setUf(enderecoDTO.getUf() != null ? 
+            enderecoDTO.getUf() : enderecoViaCep.getUf());
+        
         endereco.setComplemento(enderecoDTO.getComplemento());
         return endereco;
     }
