@@ -1,57 +1,40 @@
 # 🎯 Gerenciador de Clientes API
 
-> API RESTful moderna para gerenciamento completo de clientes com autenticação JWT, validações avançadas e integração com serviços externos.
+API RESTful para gerenciamento de clientes com autenticação JWT e validações brasileiras.
 
 [![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-brightgreen)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## 🛠️ Stack Tecnológica
+## 🌐 Produção
 
-- **Backend:** Java 17 + Spring Boot 3.1.5
-- **Segurança:** Spring Security + JWT
-- **Banco de Dados:** PostgreSQL + JPA/Hibernate  
-- **Build:** Maven
-- **Deploy:** Docker + Heroku
-- **Docs:** OpenAPI 3.0/Swagger
-- **Testes:** JUnit 5 + Mockitond - Gerenciador de Clientes
+**API:** https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com/swagger-ui/index.html
 
-API RESTful robusta para gerenciamento de clientes com autenticação JWT e integração com serviços externos.
+## � Credenciais de Acesso
 
-## � Tecnologias
+1. **Admin** - Login: `admin` | Senha: `123qwe!@#` (CRUD completo)
+2. **Usuário** - Login: `user` | Senha: `123qwe123` (Apenas leitura)
 
-- **Java 17** + **Spring Boot 3.1.5**
-- **Spring Security** + **JWT Authentication**
-- **PostgreSQL** com **JPA/Hibernate**
-- **Maven** + **Docker**
-- **OpenAPI/Swagger** para documentação
+## 🚀 Executar com Docker
 
-## 🚀 Quick Start
-
-### Pré-requisitos
-- Java 17+
-- PostgreSQL (local ou Docker)
-- Maven 3.6+
-
-### Executar Localmente
 ```bash
-# 1. Clonar o repositório
-git clone https://github.com/ferreiradluan/gerenciador-clientes-api.git
-cd gerenciador-clientes-api/backend
+# Stack completa (API + PostgreSQL)
+docker-compose up -d
 
-# 2. Banco via Docker
-docker-compose up -d postgres
-
-# 3. Executar aplicação
-./mvnw spring-boot:run
+# Acessar
+# API: http://localhost:8080
+# Swagger: http://localhost:8080/swagger-ui/index.html
 ```
 
-### Acessar Documentação
-- **Swagger UI:** http://localhost:8080/swagger-ui/index.html
-- **API Docs:** http://localhost:8080/v3/api-docs
+## 🛠️ Tecnologias
 
-## 📋 Principais Endpoints
+- **Java 17** + **Spring Boot 3.1.5**
+- **Spring Security** + **JWT**
+- **PostgreSQL** + **JPA/Hibernate**
+- **Maven** + **Docker**
+- **OpenAPI/Swagger**
+
+## � Endpoints Principais
 
 ```http
 POST   /api/auth/login           # Autenticação
@@ -64,27 +47,15 @@ DELETE /api/clientes/{id}        # Remover cliente
 
 ## ✅ Funcionalidades
 
-- **CRUD Completo** de clientes
-- **Autenticação JWT** com Spring Security
-- **Validação de CPF** brasileiro
-- **Integração ViaCEP** para endereços
-- **Paginação e Filtros** avançados
-- **Testes Automatizados** (100% cobertura)
+- ✅ **CRUD** completo de clientes
+- ✅ **Autenticação JWT** 
+- ✅ **Validação CPF** brasileiro
+- ✅ **Integração ViaCEP**
+- ✅ **Paginação e filtros**
+- ✅ **Testes automatizados**
 
 ## 🧪 Testes
 
 ```bash
-./mvnw test                      # Executar todos os testes
-./mvnw test-compile test         # Com relatórios
-```
-
-## 🚀 Deploy
-
-### Heroku
-A aplicação está deployada em: [gerenciador-clientes-api-luan.herokuapp.com](https://gerenciador-clientes-api-luan-50f831b39a9a.herokuapp.com)
-
-### Docker
-```bash
-docker-compose up -d             # Full stack (app + banco)
-docker-compose up postgres      # Apenas banco
+./mvnw test
 ```

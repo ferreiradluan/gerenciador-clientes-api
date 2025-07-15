@@ -1,59 +1,52 @@
-# Frontend
+# 🎨 Frontend - Gerenciador de Clientes
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.0.
+Interface web moderna para gerenciamento de clientes com Angular e Material Design.
 
-## Development server
+[![Angular](https://img.shields.io/badge/Angular-20-red)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
+[![Material](https://img.shields.io/badge/Angular%20Material-20-purple)](https://material.angular.io/)
 
-To start a local development server, run:
+## 🌐 Produção
 
-```bash
-ng serve
-```
+**Frontend:** https://gerenciador-clientes-fw4yusbzh-luan-ferreiras-projects.vercel.app/login
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 👤 Credenciais de Acesso
 
-## Code scaffolding
+1. **Admin** - Login: `admin` | Senha: `123qwe!@#` (CRUD completo)
+2. **Usuário** - Login: `user` | Senha: `123qwe123` (Apenas leitura)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🚀 Executar Localmente
 
 ```bash
-ng generate --help
+# Instalar dependências
+npm install
+
+# Executar desenvolvimento
+npm start
+
+# Acessar: http://localhost:4200
 ```
 
-## Building
+## 🛠️ Tecnologias
 
-To build the project run:
+- **Angular 20** + **TypeScript 5.8**
+- **Angular Material** para UI
+- **Angular CLI** para build
+- **NgxMask** para máscaras
+
+## ✅ Funcionalidades
+
+- ✅ **Interface responsiva** com Material Design
+- ✅ **Autenticação JWT**
+- ✅ **CRUD** completo de clientes
+- ✅ **Validação CPF** e formulários
+- ✅ **Máscaras** de entrada automáticas
+- ✅ **Consulta CEP** integrada
+
+## 📦 Build
 
 ```bash
-ng build
+npm run build        # Build produção
+npm run build:dev    # Build desenvolvimento
+npm test             # Executar testes
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
