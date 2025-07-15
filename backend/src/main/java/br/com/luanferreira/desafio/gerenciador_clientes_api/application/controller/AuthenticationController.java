@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 @Tag(name = "Autenticação", description = "Endpoints para autenticação e autorização")
 public class AuthenticationController {
 
