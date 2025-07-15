@@ -59,6 +59,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         
+      - name: Set up JDK 8 for deployment
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
+      - name: Build Backend for production
+        run: mvn -f backend/pom.xml clean package -DskipTests
+        
       - name: Deploy Backend to Heroku
         uses: akhileshns/heroku-deploy@v3.12.14
         with:
@@ -66,7 +82,7 @@ jobs:
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           appdir: "backend"
-          procfile: "web: java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/gerenciador-clientes-api-0.0.1-SNAPSHOT.jar"
+          usedocker: false
 
   # Deploy Frontend - roda apenas na branch main
   deploy_frontend:
@@ -82,7 +98,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
           
+      - name: Install Frontend Dependencies
+        run: npm --prefix frontend ci
+        
+      - name: Build Frontend for production
+        run: npm --prefix frontend run build -- --configuration production
+        
       - name: Deploy Frontend to Vercel
         uses: amondnet/vercel-action@v25
         with:
@@ -91,3 +115,4 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_SCOPE }}
           working-directory: frontend
+          vercel-args: '--prod'
