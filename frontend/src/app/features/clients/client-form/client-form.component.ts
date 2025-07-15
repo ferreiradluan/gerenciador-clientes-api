@@ -3,8 +3,11 @@ import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClientService } from '../client.service';
-import { Cliente } from '../../../shared/models/cliente.model';
-import { CpfUtilService } from '../../../shared/services/cpf-util.service';
+import { CepService } from '../../../shared/services/cep.service';
+import { TelefoneService } from '../../../shared/services/telefone.service';
+import { ClienteRequest, ClienteResponse } from '../../../shared/models/cliente.model';
+import { TipoTelefone } from '../../../shared/models/telefone.model';
+import { EnderecoRequest } from '../../../shared/models/endereco.model';
 
 @Component({
   selector: 'app-client-form',
@@ -16,44 +19,57 @@ export class ClientFormComponent implements OnInit {
   clientForm!: FormGroup;
   isEditMode = false;
   clientId: number | null = null;
+  tipoTelefoneOptions: { value: TipoTelefone, label: string }[] = [];
+  cepCarregando = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     public router: Router,
     private clientService: ClientService,
-    private snackBar: MatSnackBar,
-    private cpfUtilService: CpfUtilService
+    private cepService: CepService,
+    private telefoneService: TelefoneService,
+    private snackBar: MatSnackBar
   ) { }
 
   // Validador customizado para CPF
   cpfValidator(control: AbstractControl): {[key: string]: any} | null {
     if (!control.value) {
-      return null; // Deixa o required lidar com valores vazios
+      return null;
     }
     
-    const cpfLimpo = this.cpfUtilService.removerMascara(control.value);
-    const isValid = this.cpfUtilService.validarFormato(cpfLimpo);
-    
+    const isValid = this.clientService.validarCpf(control.value);
     return isValid ? null : { 'cpfInvalido': { value: control.value } };
   }
 
+  // Validador customizado para CEP
+  cepValidator(control: AbstractControl): {[key: string]: any} | null {
+    if (!control.value) {
+      return null;
+    }
+    
+    const isValid = this.cepService.validarCep(control.value);
+    return isValid ? null : { 'cepInvalido': { value: control.value } };
+  }
+
+  // Validador customizado para telefone
+  telefoneValidator(control: AbstractControl): {[key: string]: any} | null {
+    if (!control.value || !control.parent) {
+      return null;
+    }
+    
+    const tipoControl = control.parent.get('tipo');
+    if (!tipoControl?.value) {
+      return null;
+    }
+
+    const isValid = this.telefoneService.validarTelefone(control.value, tipoControl.value);
+    return isValid ? null : { 'telefoneInvalido': { value: control.value } };
+  }
+
   ngOnInit(): void {
-    this.clientForm = this.fb.group({
-      nome: ['', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(100),
-        Validators.pattern(/^[a-zA-ZÀ-ÿ0-9\s]+$/)
-      ]],
-      cpf: ['', [
-        Validators.required,
-        this.cpfValidator.bind(this)
-      ]],
-      telefones: this.fb.array([]),
-      emails: this.fb.array([]),
-      enderecos: this.fb.array([])
-    });
+    this.tipoTelefoneOptions = this.telefoneService.getTipoTelefoneOptions();
+    this.initializeForm();
 
     // Verificar se está em modo de edição
     this.route.params.subscribe(params => {
@@ -62,41 +78,67 @@ export class ClientFormComponent implements OnInit {
         this.clientId = +params['id'];
         this.loadClientData(this.clientId);
       } else {
-        // Modo criação - adicionar itens padrão para satisfazer validações do backend
+        // Modo criação - adicionar pelo menos um telefone e email
         this.addTelefone();
         this.addEmail();
-        this.addEndereco();
       }
     });
   }
 
-  loadClientData(id: number): void {
-    this.clientService.getClienteById(id).subscribe(client => {
-      // Preencher os campos principais
-      this.clientForm.patchValue({
-        nome: client.nome,
-        cpf: this.cpfUtilService.aplicarMascara(client.cpf) // Aplica máscara ao exibir
-      });
+  initializeForm(): void {
+    this.clientForm = this.fb.group({
+      nome: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100)
+      ]],
+      cpf: ['', [
+        Validators.required,
+        this.cpfValidator.bind(this)
+      ]],
+      endereco: this.fb.group({
+        cep: ['', [Validators.required, this.cepValidator.bind(this)]],
+        logradouro: ['', Validators.required],
+        complemento: [''],
+        bairro: ['', Validators.required],
+        cidade: ['', Validators.required],
+        uf: ['', Validators.required]
+      }),
+      telefones: this.fb.array([], [Validators.required, Validators.minLength(1)]),
+      emails: this.fb.array([], [Validators.required, Validators.minLength(1)])
+    });
+  }
 
-      // Popular FormArray de telefones
-      if (client.telefones) {
+  loadClientData(id: number): void {
+    this.clientService.getClienteById(id).subscribe({
+      next: (client: ClienteResponse) => {
+        // Preencher campos principais
+        this.clientForm.patchValue({
+          nome: client.nome,
+          cpf: this.clientService.formatarCpf(client.cpf),
+          endereco: {
+            cep: this.cepService.formatarCep(client.enderecos[0]?.cep || ''),
+            logradouro: client.enderecos[0]?.logradouro || '',
+            complemento: client.enderecos[0]?.complemento || '',
+            bairro: client.enderecos[0]?.bairro || '',
+            cidade: client.enderecos[0]?.cidade || '',
+            uf: client.enderecos[0]?.uf || ''
+          }
+        });
+
+        // Popular telefones
         client.telefones.forEach(telefone => {
           this.addTelefone(telefone);
         });
-      }
 
-      // Popular FormArray de emails
-      if (client.emails) {
+        // Popular emails
         client.emails.forEach(email => {
           this.addEmail(email);
         });
-      }
-
-      // Popular FormArray de endereços
-      if (client.enderecos) {
-        client.enderecos.forEach(endereco => {
-          this.addEndereco(endereco);
-        });
+      },
+      error: (error) => {
+        this.snackBar.open('Erro ao carregar dados do cliente', 'Fechar', { duration: 3000 });
+        console.error('Erro ao carregar cliente:', error);
       }
     });
   }
@@ -110,113 +152,137 @@ export class ClientFormComponent implements OnInit {
     return this.clientForm.get('emails') as FormArray;
   }
 
-  get enderecos(): FormArray {
-    return this.clientForm.get('enderecos') as FormArray;
-  }
-
-  // Getter para facilitar validação do nome no template
-  get nome() {
-    return this.clientForm.get('nome');
-  }
-
-  // Getter para facilitar validação do CPF no template
-  get cpf() {
-    return this.clientForm.get('cpf');
+  get endereco(): FormGroup {
+    return this.clientForm.get('endereco') as FormGroup;
   }
 
   // Métodos para gerenciar telefones
   addTelefone(telefone?: any): void {
+    let numero = '';
+    let tipo = TipoTelefone.CELULAR;
+    
+    if (telefone) {
+      // Se é telefone do backend, formatá-lo corretamente
+      if (telefone.ddd && telefone.numero) {
+        numero = `${telefone.ddd}${telefone.numero}`;
+      } else if (telefone.numero) {
+        numero = telefone.numero;
+      }
+      tipo = telefone.tipo || TipoTelefone.CELULAR;
+    }
+    
     const telefoneGroup = this.fb.group({
-      ddd: [telefone?.ddd || '11', Validators.required],
-      numero: [telefone?.numero || '999999999', Validators.required],
-      tipo: [telefone?.tipo || 'CELULAR', Validators.required]
+      tipo: [tipo, Validators.required],
+      numero: [numero, [Validators.required, this.telefoneValidator.bind(this)]]
     });
+
+    // Observer para revalidar número quando tipo mudar
+    telefoneGroup.get('tipo')?.valueChanges.subscribe(() => {
+      telefoneGroup.get('numero')?.updateValueAndValidity();
+    });
+
     this.telefones.push(telefoneGroup);
   }
 
   removeTelefone(index: number): void {
-    this.telefones.removeAt(index);
+    if (this.telefones.length > 1) {
+      this.telefones.removeAt(index);
+    } else {
+      this.snackBar.open('Pelo menos um telefone deve ser cadastrado', 'Fechar', { duration: 3000 });
+    }
+  }
+
+  getTelefoneMask(index: number): string {
+    const tipo = this.telefones.at(index)?.get('tipo')?.value;
+    return this.telefoneService.getMascaraTelefone(tipo);
   }
 
   // Métodos para gerenciar emails
   addEmail(email?: any): void {
     const emailGroup = this.fb.group({
-      enderecoEmail: [email?.enderecoEmail || 'cliente@email.com', [Validators.required, Validators.email]]
+      enderecoEmail: [email?.enderecoEmail || '', [Validators.required, Validators.email]]
     });
     this.emails.push(emailGroup);
   }
 
   removeEmail(index: number): void {
-    this.emails.removeAt(index);
-  }
-
-  // Métodos para gerenciar endereços
-  addEndereco(endereco?: any): void {
-    const enderecoGroup = this.fb.group({
-      cep: [endereco?.cep || '01001000', Validators.required],
-      logradouro: [endereco?.logradouro || ''],
-      bairro: [endereco?.bairro || ''],
-      cidade: [endereco?.cidade || ''],
-      uf: [endereco?.uf || ''],
-      complemento: [endereco?.complemento || 'Apto 101']
-    });
-    this.enderecos.push(enderecoGroup);
-  }
-
-  removeEndereco(index: number): void {
-    this.enderecos.removeAt(index);
-  }
-
-  // Método para aplicar máscara de CPF manualmente
-  onCpfChange(event: any): void {
-    let value = event.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
-    
-    if (value.length <= 11) {
-      // Aplica máscara CPF: 000.000.000-00
-      if (value.length > 3 && value.length <= 6) {
-        value = value.replace(/(\d{3})(\d+)/, '$1.$2');
-      } else if (value.length > 6 && value.length <= 9) {
-        value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
-      } else if (value.length > 9) {
-        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, '$1.$2.$3-$4');
-      }
-      
-      // Atualiza o valor do campo
-      this.clientForm.get('cpf')?.setValue(value, { emitEvent: false });
+    if (this.emails.length > 1) {
+      this.emails.removeAt(index);
+    } else {
+      this.snackBar.open('Pelo menos um email deve ser cadastrado', 'Fechar', { duration: 3000 });
     }
+  }
+
+  // Método para buscar CEP
+  onCepChange(): void {
+    const cepControl = this.endereco.get('cep');
+    if (!cepControl?.value || !this.cepService.validarCep(cepControl.value)) {
+      return;
+    }
+
+    this.cepCarregando = true;
+    this.cepService.buscarCep(cepControl.value).subscribe({
+      next: (endereco: EnderecoRequest) => {
+        this.endereco.patchValue({
+          logradouro: endereco.logradouro,
+          bairro: endereco.bairro,
+          cidade: endereco.cidade,
+          uf: endereco.uf
+        });
+        this.cepCarregando = false;
+      },
+      error: (error) => {
+        this.snackBar.open('CEP não encontrado', 'Fechar', { duration: 3000 });
+        this.cepCarregando = false;
+      }
+    });
   }
 
   onSubmit(): void {
     if (this.clientForm.invalid) {
-      // Marcar todos os campos como touched para mostrar erros
       this.clientForm.markAllAsTouched();
-      
-      // Verificar erros específicos do CPF
-      const cpfControl = this.clientForm.get('cpf');
-      const nomeControl = this.clientForm.get('nome');
-      
-      if (cpfControl?.hasError('required')) {
-        this.snackBar.open('CPF é obrigatório.', 'Fechar', { duration: 3000 });
-      } else if (cpfControl?.hasError('cpfInvalido')) {
-        this.snackBar.open('CPF inválido.', 'Fechar', { duration: 3000 });
-      } else if (nomeControl?.hasError('required')) {
-        this.snackBar.open('Nome é obrigatório.', 'Fechar', { duration: 3000 });
-      } else if (nomeControl?.hasError('minlength')) {
-        this.snackBar.open('Nome deve ter pelo menos 3 caracteres.', 'Fechar', { duration: 3000 });
-      } else if (nomeControl?.hasError('maxlength')) {
-        this.snackBar.open('Nome deve ter no máximo 100 caracteres.', 'Fechar', { duration: 3000 });
-      } else if (nomeControl?.hasError('pattern')) {
-        this.snackBar.open('Nome deve conter apenas letras, números e espaços.', 'Fechar', { duration: 3000 });
-      } else {
-        this.snackBar.open('Por favor, preencha todos os campos obrigatórios.', 'Fechar', { duration: 3000 });
-      }
+      this.showValidationErrors();
       return;
     }
 
-    const clientData: Cliente = {
-      ...this.clientForm.value,
-      cpf: this.cpfUtilService.removerMascara(this.clientForm.value.cpf) // Remove máscara antes de enviar
+    const formValue = this.clientForm.value;
+    
+    // Debug
+    console.log('Form Value:', formValue);
+    
+    const clientData: ClienteRequest = {
+      nome: formValue.nome,
+      cpf: this.clientService.removerMascaraCpf(formValue.cpf),
+      enderecos: [{
+        cep: this.cepService.removerMascara(formValue.endereco.cep),
+        logradouro: formValue.endereco.logradouro,
+        complemento: formValue.endereco.complemento || null,
+        bairro: formValue.endereco.bairro,
+        cidade: formValue.endereco.cidade,
+        uf: formValue.endereco.uf
+      }],
+      telefones: formValue.telefones.map((tel: any) => {
+        const numeroLimpo = this.telefoneService.removerMascaraTelefone(tel.numero);
+        console.log('Telefone original:', tel.numero, 'Limpo:', numeroLimpo);
+        
+        // Garantir que temos DDD e número válidos
+        if (numeroLimpo.length < 10) {
+          console.error('Número de telefone muito curto:', numeroLimpo);
+        }
+        
+        return {
+          ddd: numeroLimpo.substring(0, 2),
+          numero: numeroLimpo.substring(2),
+          tipo: tel.tipo
+        };
+      }),
+      emails: formValue.emails.map((email: any) => ({
+        enderecoEmail: email.enderecoEmail
+      }))
     };
+    
+    // Debug
+    console.log('Client Data to send:', JSON.stringify(clientData, null, 2));
 
     if (this.isEditMode && this.clientId) {
       this.clientService.updateCliente(this.clientId, clientData).subscribe({
@@ -238,8 +304,29 @@ export class ClientFormComponent implements OnInit {
         error: (err) => {
           this.snackBar.open('Erro ao criar cliente.', 'Fechar', { duration: 3000 });
           console.error('Erro ao criar cliente:', err);
+          console.error('Detalhes do erro:', err.error);
         }
       });
+    }
+  }
+
+  private showValidationErrors(): void {
+    if (this.clientForm.get('nome')?.hasError('required')) {
+      this.snackBar.open('Nome é obrigatório', 'Fechar', { duration: 3000 });
+    } else if (this.clientForm.get('cpf')?.hasError('required')) {
+      this.snackBar.open('CPF é obrigatório', 'Fechar', { duration: 3000 });
+    } else if (this.clientForm.get('cpf')?.hasError('cpfInvalido')) {
+      this.snackBar.open('CPF inválido', 'Fechar', { duration: 3000 });
+    } else if (this.endereco.get('cep')?.hasError('required')) {
+      this.snackBar.open('CEP é obrigatório', 'Fechar', { duration: 3000 });
+    } else if (this.endereco.get('cep')?.hasError('cepInvalido')) {
+      this.snackBar.open('CEP inválido', 'Fechar', { duration: 3000 });
+    } else if (this.telefones.hasError('required') || this.telefones.hasError('minlength')) {
+      this.snackBar.open('Pelo menos um telefone deve ser cadastrado', 'Fechar', { duration: 3000 });
+    } else if (this.emails.hasError('required') || this.emails.hasError('minlength')) {
+      this.snackBar.open('Pelo menos um email deve ser cadastrado', 'Fechar', { duration: 3000 });
+    } else {
+      this.snackBar.open('Por favor, corrija os erros no formulário', 'Fechar', { duration: 3000 });
     }
   }
 }

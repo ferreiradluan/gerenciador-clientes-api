@@ -3,7 +3,7 @@ package br.com.luanferreira.desafio.gerenciador_clientes_api.infrastructure.conf
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ClienteNaoEncontradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.CpfJaCadastradoException;
 import br.com.luanferreira.desafio.gerenciador_clientes_api.domain.exception.ViaCepException;
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

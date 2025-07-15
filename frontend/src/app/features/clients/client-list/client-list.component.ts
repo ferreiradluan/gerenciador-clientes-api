@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -26,7 +26,8 @@ export class ClientListComponent implements OnInit, AfterViewInit {
   constructor(
     private clientService: ClientService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -63,6 +64,8 @@ export class ClientListComponent implements OnInit, AfterViewInit {
 
   loadClients(): void {
     this.isLoading = true;
+    this.cdr.detectChanges(); // Força detecção de mudanças
+    
     const page = this.paginator?.pageIndex || 0;
     const size = this.paginator?.pageSize || 10;
     const sortField = this.sort?.active || 'nome';
@@ -74,11 +77,13 @@ export class ClientListComponent implements OnInit, AfterViewInit {
         this.totalElements = data.totalElements;
         this.paginator.length = data.totalElements;
         this.isLoading = false;
+        this.cdr.detectChanges(); // Força detecção de mudanças
       },
       error: (err) => {
         console.error('Erro ao carregar clientes:', err);
         this.snackBar.open('Erro ao carregar clientes.', 'Fechar', { duration: 3000 });
         this.isLoading = false;
+        this.cdr.detectChanges(); // Força detecção de mudanças
       }
     });
   }

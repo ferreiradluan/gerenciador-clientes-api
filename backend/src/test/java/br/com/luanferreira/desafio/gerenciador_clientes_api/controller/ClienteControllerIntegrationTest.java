@@ -47,7 +47,7 @@ class ClienteControllerIntegrationTest {
 
         // Usando CPF válido para teste
         ClienteRequestBody requestBody = new ClienteRequestBody("Nome Teste", "11144477735",
-                Collections.singleton(new Telefone("11", "987654321", "Celular")),
+                Collections.singleton(new Telefone("11", "987654321", "CELULAR")),
                 Collections.singleton(new Email("teste@teste.com")),
                 Collections.singletonList(new EnderecoDTO("01001000", null, null, null, null, "Apto 1")));
 
