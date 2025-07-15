@@ -8,7 +8,7 @@ import { ViaCepResponse, EnderecoRequest } from '../models/endereco.model';
   providedIn: 'root'
 })
 export class CepService {
-  private readonly API_URL = 'http://localhost:8080/api/cep';
+  private readonly API_URL = `${environment.apiUrl}/cep`;
 
   constructor(private http: HttpClient) { }
 
