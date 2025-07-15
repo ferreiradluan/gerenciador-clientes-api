@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build -- --configuration production",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
